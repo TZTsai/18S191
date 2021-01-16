@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.13
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -46,30 +46,6 @@ md"""
 Submission by: **_$(student.name)_** ($(student.kerberos_id)@mit.edu)
 """
 
-# ╔═╡ 5f95e01a-ee0a-11ea-030c-9dba276aba92
-md"_Let's create a package environment:_"
-
-# ╔═╡ 65780f00-ed6b-11ea-1ecf-8b35523a7ac0
-begin
-	import Pkg
-	Pkg.activate(mktempdir())
-end
-
-# ╔═╡ 74b008f6-ed6b-11ea-291f-b3791d6d1b35
-begin
-	Pkg.add(["Images", "ImageMagick"])
-	using Images
-end
-
-# ╔═╡ 6b30dc38-ed6b-11ea-10f3-ab3f121bf4b8
-begin
-	Pkg.add("PlutoUI")
-	using PlutoUI
-end
-
-# ╔═╡ 67461396-ee0a-11ea-3679-f31d46baa9b4
-md"_We set up Images.jl again:_"
-
 # ╔═╡ 540ccfcc-ee0a-11ea-15dc-4f8120063397
 md"""
 ## **Exercise 1** - _Manipulating vectors (1D images)_
@@ -87,15 +63,18 @@ md"#### Exerise 1.1
 "
 
 # ╔═╡ f51333a6-eded-11ea-34e6-bfbb3a69bcb0
-random_vect = missing # replace this with your code!
+random_vect =rand(10)
 
 # ╔═╡ cf738088-eded-11ea-2915-61735c2aa990
 md"👉 Make a function `mean` using a `for` loop, which computes the mean/average of a vector of numbers."
 
 # ╔═╡ 0ffa8354-edee-11ea-2883-9d5bfea4a236
 function mean(x)
-	
-	return missing
+	m, n = 0, length(x)
+	for xi in x
+		m += xi
+	end
+	return m / n
 end
 
 # ╔═╡ 1f104ce4-ee0e-11ea-2029-1d9c817175af
@@ -105,15 +84,15 @@ mean([1, 2, 3])
 md"👉 Define `m` to be the mean of `random_vect`."
 
 # ╔═╡ 2a391708-edee-11ea-124e-d14698171b68
-m = missing
+m = mean(random_vect)
 
 # ╔═╡ e2863d4c-edef-11ea-1d67-332ddca03cc4
 md"""👉 Write a function `demean`, which takes a vector `x` and subtracts the mean from each value in `x`."""
 
 # ╔═╡ ec5efe8c-edef-11ea-2c6f-afaaeb5bc50c
 function demean(x)
-	
-	return missing
+	m = mean(x)
+	return x .- m
 end
 
 # ╔═╡ 29e10640-edf0-11ea-0398-17dbf4242de3
@@ -144,9 +123,13 @@ md"""
 
 # ╔═╡ b6b65b94-edf0-11ea-3686-fbff0ff53d08
 function create_bar()
-	
-	return missing
+	v = zeros(100)
+	v[41:60] .= 1
+	return v
 end
+
+# ╔═╡ 80cd45d6-5661-11eb-3e81-23706093ec9e
+sum(create_bar())
 
 # ╔═╡ 22f28dae-edf2-11ea-25b5-11c369ae1253
 md"""
@@ -157,8 +140,11 @@ md"""
 
 # ╔═╡ 8c19fb72-ed6c-11ea-2728-3fa9219eddc4
 function vecvec_to_matrix(vecvec)
-	
-	return missing
+	m = Array{Any,2}(undef, length(vecvec), length(vecvec[1]))
+	for (i, v) in enumerate(vecvec)
+		m[i,:] .= v
+	end
+	return m
 end
 
 # ╔═╡ c4761a7e-edf2-11ea-1e75-118e73dadbed
@@ -173,8 +159,11 @@ md"""
 
 # ╔═╡ 9f1c6d04-ed6c-11ea-007b-75e7e780703d
 function matrix_to_vecvec(matrix)
-	
-	return missing
+	v = []
+	for i in 1:size(matrix)[1]
+		push!(v, matrix[i,:])
+	end
+	return v
 end
 
 # ╔═╡ 70955aca-ed6e-11ea-2330-89b4d20b1795
@@ -217,14 +206,19 @@ md"""
 👉 Write a function **`mean_colors`** that accepts an object called `image`. It should calculate the mean (average) amounts of red, green and blue in the image and return a tuple `(r, g, b)` of those means.
 """
 
-# ╔═╡ f6898df6-ee07-11ea-2838-fde9bc739c11
-function mean_colors(image)
-	
-	return missing
+# ╔═╡ abf4952a-571a-11eb-0376-21ae2a38e9fd
+function map_color(f, color::AbstractRGB)
+	c = [color.r, color.g, color.b]
+	return RGB(f.(c)...)
 end
 
-# ╔═╡ d75ec078-ee0d-11ea-3723-71fb8eecb040
-
+# ╔═╡ f6898df6-ee07-11ea-2838-fde9bc739c11
+function mean_colors(image)
+	R = map(c -> c.r, image)
+	G = map(c -> c.g, image)
+	B = map(c -> c.b, image)
+	return mean.((R, G, B))
+end
 
 # ╔═╡ f68d4a36-ee07-11ea-0832-0360530f102e
 md"""
@@ -235,18 +229,17 @@ md"""
 # ╔═╡ f6991a50-ee07-11ea-0bc4-1d68eb028e6a
 begin
 	function quantize(x::Number)
-		
-		return missing
+		return floor(x * 10) / 10
 	end
 	
 	function quantize(color::AbstractRGB)
 		# you will write me in a later exercise!
-		return missing
+		return map_color(quantize, color)
 	end
 	
 	function quantize(image::AbstractMatrix)
 		# you will write me in a later exercise!
-		return missing
+		return quantize.(image)
 	end
 end
 
@@ -284,8 +277,7 @@ md"""
 
 # ╔═╡ 63e8d636-ee0b-11ea-173d-bd3327347d55
 function invert(color::AbstractRGB)
-	
-	return missing
+	return map_color(x -> 1 - x, color)
 end
 
 # ╔═╡ 2cc2f84e-ee0d-11ea-373b-e7ad3204bb00
@@ -306,9 +298,6 @@ invert(red)
 # ╔═╡ 846b1330-ee0b-11ea-3579-7d90fafd7290
 md"Can you invert the picture of Philip?"
 
-# ╔═╡ 943103e2-ee0b-11ea-33aa-75a8a1529931
-philip_inverted = missing
-
 # ╔═╡ f6d6c71a-ee07-11ea-2b63-d759af80707b
 md"""
 #### Exercise 2.6
@@ -318,18 +307,22 @@ md"""
 # ╔═╡ f6e2cb2a-ee07-11ea-06ee-1b77e34c1e91
 begin
 	function noisify(x::Number, s)
-
-		return missing
+		r = 1 - rand() * 2
+		return clamp(x + s * r, 0, 1)
 	end
 	
 	function noisify(color::AbstractRGB, s)
 		# you will write me in a later exercise!
-		return missing
+		return map_color(x -> noisify(x, s), color)
 	end
 	
 	function noisify(image::AbstractMatrix, s)
 		# you will write me in a later exercise!
-		return missing
+		return (c -> noisify(c, s)).(image)
+	end
+	
+	function clamp(x, lower, upper)
+		return (x < lower) ? lower : (x > upper) ? upper : x
 	end
 end
 
@@ -372,7 +365,9 @@ You may need noise intensities larger than 1. Why?
 
 # ╔═╡ bdc2df7c-ee0c-11ea-2e9f-7d2c085617c1
 answer_about_noise_intensity = md"""
-The image is unrecognisable with intensity ...
+The image is unrecognisable with intensity about 5.5.
+
+The reason why I need noise intensities much larger than 1 is that although when the intensity reaches 1, for each pixel it could possibly be changed to any color, but the average color it could have is still its original color. This means, for an area in the image that has similar color pixels, it could still demonstrate some statstical traits through the noisified pixels, thus distinguishing itself from other color areas. The image becomes really unrecognisible, I suppose, when the variance of the noisification is greater then the variance of original colors between different areas in the image.
 """
 
 # ╔═╡ 81510a30-ee0e-11ea-0062-8b3327428f9d
@@ -392,6 +387,9 @@ mean_colors(philip)
 
 # ╔═╡ 9751586e-ee0c-11ea-0cbb-b7eda92977c9
 quantize(philip)
+
+# ╔═╡ 943103e2-ee0b-11ea-33aa-75a8a1529931
+philip_inverted = invert.(philip)
 
 # ╔═╡ ac15e0d0-ee0c-11ea-1eaf-d7f88b5df1d7
 noisify(philip, philip_noise)
@@ -1350,7 +1348,7 @@ with_sobel_edge_detect(sobel_camera_image)
 
 # ╔═╡ Cell order:
 # ╠═83eb9ca0-ed68-11ea-0bc5-99a09c68f867
-# ╟─8ef13896-ed68-11ea-160b-3550eeabbd7d
+# ╠═8ef13896-ed68-11ea-160b-3550eeabbd7d
 # ╟─ac8ff080-ed61-11ea-3650-d9df06123e1f
 # ╠═911ccbce-ed68-11ea-3606-0384e7580d7c
 # ╟─5f95e01a-ee0a-11ea-030c-9dba276aba92
@@ -1381,6 +1379,7 @@ with_sobel_edge_detect(sobel_camera_image)
 # ╠═73ef1d50-edf0-11ea-343c-d71706874c82
 # ╟─a5f8bafe-edf0-11ea-0da3-3330861ae43a
 # ╠═b6b65b94-edf0-11ea-3686-fbff0ff53d08
+# ╠═80cd45d6-5661-11eb-3e81-23706093ec9e
 # ╟─d862fb16-edf1-11ea-36ec-615d521e6bc0
 # ╟─e3394c8a-edf0-11ea-1bb8-619f7abb6881
 # ╟─22f28dae-edf2-11ea-25b5-11c369ae1253
@@ -1398,10 +1397,10 @@ with_sobel_edge_detect(sobel_camera_image)
 # ╠═c8ecfe5c-ee05-11ea-322b-4b2714898831
 # ╟─e86ed944-ee05-11ea-3e0f-d70fc73b789c
 # ╟─c54ccdea-ee05-11ea-0365-23aaf053b7d7
+# ╠═abf4952a-571a-11eb-0376-21ae2a38e9fd
 # ╠═f6898df6-ee07-11ea-2838-fde9bc739c11
 # ╠═5be9b144-ee0d-11ea-2a8d-8775de265a1d
 # ╟─4d0158d0-ee0d-11ea-17c3-c169d4284acb
-# ╠═d75ec078-ee0d-11ea-3723-71fb8eecb040
 # ╟─f68d4a36-ee07-11ea-0832-0360530f102e
 # ╠═f6991a50-ee07-11ea-0bc4-1d68eb028e6a
 # ╠═f6a655f8-ee07-11ea-13b6-43ca404ddfc7

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.12
+# v0.12.16
 
 using Markdown
 using InteractiveUtils
@@ -96,9 +96,6 @@ md"## Capture your own image!"
 # ╔═╡ af28faca-ebb7-11ea-130d-0f94bf9bd836
 
 
-# ╔═╡ ee1d1596-e94a-11ea-0fb4-cd05f62471d3
-md"##"
-
 # ╔═╡ 8ab9a978-e8c9-11ea-2476-f1ef4ba1b619
 md"""## What is an image?"""
 
@@ -191,26 +188,17 @@ philip_file = download(url, "philip.jpg")  # download to a local file
 # ╔═╡ 9c359212-ec79-11ea-2d7e-0124dad5f127
 philip = load(philip_file)
 
-# ╔═╡ 7703b032-ebca-11ea-3074-0b80a077078e
-philip
+# ╔═╡ cd454ef0-532c-11eb-1ddb-715475ef9a1f
+
 
 # ╔═╡ 7eff3522-ebca-11ea-1a65-59e66a4e72ab
 typeof(philip)
 
 # ╔═╡ c9cd6c04-ebca-11ea-0990-5fa19ff7ed97
-RGBX(0.9, 0.1, 0.1)
-
-# ╔═╡ 0d873d9c-e93b-11ea-2425-1bd79677fb97
-md"##"
-
-# ╔═╡ 6b09354a-ebb9-11ea-2d5a-3b75c5ae7aa9
-
+RGBX(1, 0.1, 0.3)
 
 # ╔═╡ 2d6c434e-e93b-11ea-2678-3b9db4975089
 md"##"
-
-# ╔═╡ 2b14e93e-e93b-11ea-25f1-5f565f80e778
-typeof(philip)
 
 # ╔═╡ 0bdc6058-e8d5-11ea-1889-3f706cea7a1f
 md"""##
@@ -231,27 +219,21 @@ $(HTML("<br>"))
 # ╔═╡ e61db924-ebca-11ea-2f79-f9f1c121b7f5
 size(philip)
 
-# ╔═╡ ef60fcc4-ebca-11ea-3f69-155afffe8ea8
-philip
+# ╔═╡ fe8704e0-532c-11eb-141c-e52abba00f6e
+philip[1, 1]
 
 # ╔═╡ fac550ec-ebca-11ea-337a-dbc16848c617
-philip[1:1000, 1:400]
+philip[1700:3400, 200:1800]
 
 # ╔═╡ 42aa8cfe-e8d5-11ea-3cb9-c365b98e7a8c
 md"
 ## How big is Philip?
 
-- He's pretty big:
+He's pretty big:
 "
 
 # ╔═╡ 4eea5710-e8d5-11ea-3978-af66ee2a137e
 size(philip)
-
-# ╔═╡ 57b3a0c2-e8d5-11ea-15aa-8da4549f849b
-md"- Which number is which?"
-
-# ╔═╡ 03a7c0fc-ebba-11ea-1c71-79d750c97b16
-philip
 
 # ╔═╡ e6fd68fa-e8d8-11ea-3dc4-274caceda222
 md"# So, what *is* an image?"
@@ -282,12 +264,12 @@ md"## Getting pieces of an image"
 # ╔═╡ ae260168-e932-11ea-38fd-4f2c6f43e21c
 begin 
 	(h, w) = size(philip)
-	head = philip[(h ÷ 2):h, (w ÷ 10): (9w ÷ 10)]
+	doghead = philip[(h ÷ 2) : h, (w ÷ 10) : (9w ÷ 10)]
 	# `÷` is typed as \div <TAB>  -- integer division
 end
 
 # ╔═╡ 47d1bc04-ebcb-11ea-3643-d1ba8dea57c8
-size(head)
+size(doghead)
 
 # ╔═╡ 72400458-ebcb-11ea-26b6-678ae1de8e23
 size(philip)
@@ -299,15 +281,15 @@ md"## Manipulating matrices
 "
 
 # ╔═╡ 740ed2e2-e933-11ea-236c-f3c3f09d0f8b
-[head head]
+[doghead doghead]
 
 # ╔═╡ 6128a5ba-e93b-11ea-03f5-f170c7b90b25
 md"##"
 
 # ╔═╡ 78eafe4e-e933-11ea-3539-c13feb894ef6
 [
- head                   reverse(head, dims=2)
- reverse(head, dims=1)  reverse(reverse(head, dims=1), dims=2)
+ doghead                   	reverse(doghead, dims=2)
+ reverse(doghead, dims=1)  	reverse(reverse(doghead, dims=1), dims=2)
 ]
 
 # ╔═╡ bf3f9050-e933-11ea-0df7-e5dcff6bb3ee
@@ -331,7 +313,7 @@ md"## Painting a piece of an image
 "
 
 # ╔═╡ 117a98c0-e936-11ea-3aac-8f66337cea68
-new_phil = copy(head)
+new_phil = copy(doghead)
 
 # ╔═╡ 8004d076-e93b-11ea-29cc-a1bfcc75e87f
 md"##"
@@ -388,6 +370,11 @@ function redify(c)
 	return RGB(c.r, 0, 0)
 end
 
+# ╔═╡ 18c1db00-5332-11eb-1793-bf42a12ae914
+function greenify(c)
+	return RGB(0, c.g, 0)
+end
+
 # ╔═╡ 2744a556-e94f-11ea-2434-d53c24e59285
 begin
 	color = RGB(0.9, 0.7, 0.2)
@@ -400,6 +387,9 @@ md"##"
 
 # ╔═╡ 3c32efde-e938-11ea-1ae4-5d88290f5311
 redify.(philip)
+
+# ╔═╡ 2e455ce0-5332-11eb-393c-1924726b0e85
+greenify.(philip)
 
 # ╔═╡ 4b26e4e6-e938-11ea-2635-6d4fc15e13b7
 md"## Transforming an image
@@ -426,6 +416,15 @@ md"##"
 # ╔═╡ 15ce202e-e939-11ea-2387-93be0ec4cf1f
 @bind repeat_count Slider(1:10, show_value=true)
 
+# ╔═╡ e7f03a10-5333-11eb-0302-8d53402fc5a9
+
+
+# ╔═╡ e7880260-5333-11eb-197e-7b35eea31251
+@bind x html"<input type=range>"
+
+# ╔═╡ fa35cefe-5333-11eb-0b96-2b92a14382c0
+x
+
 # ╔═╡ bf2167a4-e93d-11ea-03b2-cdd24b459ba9
 md"## Summary
 
@@ -435,6 +434,12 @@ md"## Summary
 
 - Relatively simple mathematical operations can transform images in useful ways
 "
+
+# ╔═╡ b8daeea0-ec79-11ea-34b5-3f13e8a56a42
+md"# Appendix"
+
+# ╔═╡ 04106ed0-5335-11eb-0b82-03b6e50f388a
+md"## Utilities"
 
 # ╔═╡ 58184d88-e939-11ea-2fc8-73b3476ebe92
 expand(image, ratio=5) = kron(image, ones(ratio, ratio))
@@ -446,13 +451,13 @@ extract_red(c) = c.r
 decimate(image, ratio=5) = image[1:ratio:end, 1:ratio:end]
 
 # ╔═╡ 41fa85c0-e939-11ea-1ad8-79805a2083bb
-poor_phil = decimate(head, 5)
+poor_phil = decimate(doghead, 5)
+
+# ╔═╡ f5c6aa80-5332-11eb-2913-8d648ae3aec0
+(size(doghead), size(poor_phil))
 
 # ╔═╡ cd5721d0-ede6-11ea-0918-1992c69bccc6
 repeat(poor_phil, repeat_count, repeat_count)
-
-# ╔═╡ b8daeea0-ec79-11ea-34b5-3f13e8a56a42
-md"# Appendix"
 
 # ╔═╡ bf1bb2c8-ec79-11ea-0671-3ffb34828f3c
 md"## Package environment"
@@ -728,8 +733,7 @@ grant = decimate(process_raw_camera_data(raw_camera_data), 2)
 # ╟─a0a97214-e8d2-11ea-0f46-0bfaf016ab6d
 # ╟─1697a756-e93d-11ea-0b6e-c9c78d527993
 # ╟─af28faca-ebb7-11ea-130d-0f94bf9bd836
-# ╠═9529bc40-e93c-11ea-2587-3186e0978476
-# ╟─ee1d1596-e94a-11ea-0fb4-cd05f62471d3
+# ╟─9529bc40-e93c-11ea-2587-3186e0978476
 # ╠═6aa73286-ede7-11ea-232b-63e052222ecd
 # ╠═9a843af8-e93c-11ea-311b-1bc6d5b58492
 # ╟─8ab9a978-e8c9-11ea-2476-f1ef4ba1b619
@@ -744,21 +748,16 @@ grant = decimate(process_raw_camera_data(raw_camera_data), 2)
 # ╠═54c1ba3c-e8d2-11ea-3564-bdaca8563738
 # ╠═6e0fefb6-e8d4-11ea-1f9b-e7a3db40df39
 # ╠═9c359212-ec79-11ea-2d7e-0124dad5f127
-# ╠═7703b032-ebca-11ea-3074-0b80a077078e
+# ╟─cd454ef0-532c-11eb-1ddb-715475ef9a1f
 # ╠═7eff3522-ebca-11ea-1a65-59e66a4e72ab
 # ╠═c9cd6c04-ebca-11ea-0990-5fa19ff7ed97
-# ╟─0d873d9c-e93b-11ea-2425-1bd79677fb97
-# ╠═6b09354a-ebb9-11ea-2d5a-3b75c5ae7aa9
 # ╟─2d6c434e-e93b-11ea-2678-3b9db4975089
-# ╠═2b14e93e-e93b-11ea-25f1-5f565f80e778
 # ╟─0bdc6058-e8d5-11ea-1889-3f706cea7a1f
 # ╠═e61db924-ebca-11ea-2f79-f9f1c121b7f5
-# ╠═ef60fcc4-ebca-11ea-3f69-155afffe8ea8
+# ╠═fe8704e0-532c-11eb-141c-e52abba00f6e
 # ╠═fac550ec-ebca-11ea-337a-dbc16848c617
 # ╟─42aa8cfe-e8d5-11ea-3cb9-c365b98e7a8c
 # ╠═4eea5710-e8d5-11ea-3978-af66ee2a137e
-# ╟─57b3a0c2-e8d5-11ea-15aa-8da4549f849b
-# ╠═03a7c0fc-ebba-11ea-1c71-79d750c97b16
 # ╟─e6fd68fa-e8d8-11ea-3dc4-274caceda222
 # ╠═63a1d282-e8d5-11ea-0bba-b9cdd32a218b
 # ╟─fc5e1af0-e8d8-11ea-1077-07216ff96d29
@@ -784,23 +783,30 @@ grant = decimate(process_raw_camera_data(raw_camera_data), 2)
 # ╠═daabe66c-e937-11ea-3bc3-d77f2bce406c
 # ╟─095ced62-e938-11ea-1169-939dc7136fd0
 # ╠═31f3605a-e938-11ea-3a6d-29a185bbee31
+# ╠═18c1db00-5332-11eb-1793-bf42a12ae914
 # ╠═2744a556-e94f-11ea-2434-d53c24e59285
 # ╟─98412a36-e93b-11ea-1954-f1c105c6ed4a
 # ╠═3c32efde-e938-11ea-1ae4-5d88290f5311
+# ╠═2e455ce0-5332-11eb-393c-1924726b0e85
 # ╟─4b26e4e6-e938-11ea-2635-6d4fc15e13b7
 # ╠═41fa85c0-e939-11ea-1ad8-79805a2083bb
+# ╠═f5c6aa80-5332-11eb-2913-8d648ae3aec0
 # ╟─c12e0928-e93b-11ea-0922-2b590a99ee89
 # ╟─ff5dc538-e938-11ea-058f-693d6b016640
 # ╠═fbe11200-e938-11ea-12e9-6125c1b56b25
 # ╟─fa24f4a8-e93b-11ea-06bd-25c9672166d6
 # ╠═15ce202e-e939-11ea-2387-93be0ec4cf1f
 # ╠═cd5721d0-ede6-11ea-0918-1992c69bccc6
+# ╟─e7f03a10-5333-11eb-0302-8d53402fc5a9
+# ╠═e7880260-5333-11eb-197e-7b35eea31251
+# ╠═fa35cefe-5333-11eb-0b96-2b92a14382c0
 # ╟─bf2167a4-e93d-11ea-03b2-cdd24b459ba9
 # ╟─5e688928-e939-11ea-0e16-fbc80af390ab
+# ╟─b8daeea0-ec79-11ea-34b5-3f13e8a56a42
+# ╟─04106ed0-5335-11eb-0b82-03b6e50f388a
 # ╟─58184d88-e939-11ea-2fc8-73b3476ebe92
 # ╟─2dd09f16-e93a-11ea-2cdc-13f558e3391d
 # ╟─df1b7996-e93b-11ea-1a3a-81b4ec520679
-# ╟─b8daeea0-ec79-11ea-34b5-3f13e8a56a42
 # ╟─bf1bb2c8-ec79-11ea-0671-3ffb34828f3c
 # ╟─69e3aa82-e93c-11ea-23fe-c1103d989cba
 # ╟─739c3bb6-e93c-11ea-127b-efb6a8ab9379
