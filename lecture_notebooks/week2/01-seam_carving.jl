@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.13
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -247,9 +247,10 @@ function least_edgy(E)
 		for j in 1:n
 			j1, j2 = max(1, j-1), min(j+1, n)
 			e, dir = findmin(least_E[i+1, j1:j2])
+			if j == 1; dir += 1 end
 			least_E[i,j] += e
 			least_E[i,j] += E[i,j]
-			dirs[i, j] = (-1,0,1)[dir + (j==1)]
+			dirs[i, j] = (-1,0,1)[dir]
 		end
 	end
 	least_E, dirs
@@ -390,7 +391,7 @@ end
 begin
 	edged = edgeness(img)
 	# hbox(img, pencil(edged))
-	hbox(img, Gray.(edgeness(img)) / maximum(abs.(edged)))
+	hbox(img, Gray.(edgeness(img)) / maximum(edged))
 end
 
 # ╔═╡ 552fb92e-ef05-11ea-0a79-dd7a6760089a
@@ -437,9 +438,9 @@ end
 # ╠═0316b94c-eef6-11ea-19bc-dbc959901bb5
 # ╟─cb335074-eef7-11ea-24e8-c39a325166a1
 # ╟─bf750d0e-f35c-11ea-0245-713584583fcf
-# ╟─90f44be8-f35c-11ea-2fc6-c361fd4966af
+# ╠═90f44be8-f35c-11ea-2fc6-c361fd4966af
 # ╟─d2ae6dd2-eef9-11ea-02df-255ec3b46a36
-# ╠═8ded023c-f35c-11ea-317c-11f5d1b67998
+# ╟─8ded023c-f35c-11ea-317c-11f5d1b67998
 # ╟─0b6010a8-eef6-11ea-3ad6-c1f10e30a413
 # ╠═fc1c43cc-eef6-11ea-0fc4-a90ac4336964
 # ╟─82c0d0c8-efec-11ea-1bb9-83134ecb877e
@@ -451,7 +452,7 @@ end
 # ╟─ac8d6902-f069-11ea-0f1d-9b0fa706d769
 # ╠═ddac52ea-f148-11ea-2860-21cff4c867e6
 # ╠═6f7bd064-eff4-11ea-0260-f71aa7f4f0e5
-# ╟─d6a268c0-eff4-11ea-2c9e-bfef19c7f540
+# ╠═d6a268c0-eff4-11ea-2c9e-bfef19c7f540
 # ╟─172c7612-efee-11ea-077a-5d5c6e2505a4
 # ╟─fcf46120-efec-11ea-06b9-45f470899cb2
 # ╟─dec62538-efee-11ea-1e03-0b801e61e91c
@@ -481,5 +482,5 @@ end
 # ╟─2d6c6820-ef2d-11ea-1704-49bb5188cfcc
 # ╠═fa6a2152-ef0f-11ea-0e67-0d1a6599e779
 # ╟─71b16dbe-f08b-11ea-2343-5f1583074029
-# ╟─1fd26a60-f089-11ea-1f56-bb6eba7d9651
+# ╠═1fd26a60-f089-11ea-1f56-bb6eba7d9651
 # ╟─15d1e5dc-ef2f-11ea-093a-417108bcd495

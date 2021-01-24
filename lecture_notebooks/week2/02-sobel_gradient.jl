@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.10
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -104,15 +104,6 @@ brightness(c) = 0.3 * c.r + 0.59 * c.g + 0.11 * c.b
 # ╔═╡ 0ccf76e4-f0d9-11ea-07c9-0159e3d4d733
 @bind img_select Radio(["disc", "mario"], default="disc")
 
-# ╔═╡ 236dab08-f13d-11ea-1922-a3b82cfc7f51
-begin
-	url = "http://files.softicons.com/download/game-icons/super-mario-icons-by-sandro-pereira/png/32/Retro%20Mario.png"
-	img = Dict(
-		"disc" => disc(25),
-		"mario" => load(download(url))
-	)[img_select]
-end
-
 # ╔═╡ 03434682-f13b-11ea-2b6e-11ad781e9a51
 md"""Show $G_x$ $(@bind Gx CheckBox())
 
@@ -130,6 +121,16 @@ function partial_derivatives(img)
 		∇y = convolve(brightness.(img), Sy)
 	end
 	return ∇x, ∇y
+end
+
+# ╔═╡ 9de86910-5db5-11eb-3ad9-df952de78656
+begin
+	url = "https://thumbs.dreamstime.com/t/pixel-mario-vector-pixel-mario-vector-icon-illustration-130142717.jpg"
+	
+	img = Dict(
+		"disc" => disc(25),
+		"mario" => load(download(url))
+	)[img_select]
 end
 
 # ╔═╡ b369584c-f183-11ea-260a-35dc797e63ad
@@ -169,11 +170,17 @@ function quiver(points, vecs)
          vector.(points, vecs, hs)...)
 end
 
+# ╔═╡ b5f13970-5db9-11eb-176c-df5892a14eb5
+[arrowhead(i*π/2) for i in 1:4]
+
 # ╔═╡ c821b906-f0d8-11ea-2df0-8f2d06964aa2
 function sobel_quiver(img, ∇x, ∇y)
     quiver([(j-1,i-1) for i=1:size(img,1), j=1:size(img,2)],
            [(∇x[i,j], ∇y[i,j]) for i=1:size(img,1), j=1:size(img,2)])
 end
+
+# ╔═╡ 64ef32b0-5dba-11eb-181f-ada456a08702
+
 
 # ╔═╡ 6da3fdfe-f0dd-11ea-2407-7b85217b35cc
 # render an Image using squares in Compose
@@ -200,6 +207,9 @@ let
 		compimg(img))
 end
 
+# ╔═╡ f4246190-5db9-11eb-20b8-cf4ef36b1a87
+compimg(img)
+
 # ╔═╡ 885ec336-f146-11ea-00c4-c1d1ab4c0001
 	function show_colored_array(array)
 		pos_color = RGB(0.36, 0.82, 0.8)
@@ -214,6 +224,9 @@ begin
 	show_colored_array(Sx)
 	Sx
 end
+
+# ╔═╡ 32e89b90-5db9-11eb-0215-19ea9a3f7bb7
+show_colored_array(Sx)
 
 # ╔═╡ 7864bd00-f146-11ea-0020-7fccb3913d8b
 let
@@ -236,23 +249,27 @@ end
 
 # ╔═╡ Cell order:
 # ╠═15a4ba3e-f0d1-11ea-2ef1-5ff1dee8795f
-# ╠═1ab1c808-f0d1-11ea-03a7-e9854427d45f
-# ╟─21e744b8-f0d1-11ea-2e09-7ffbcdf43c37
+# ╟─1ab1c808-f0d1-11ea-03a7-e9854427d45f
+# ╠═21e744b8-f0d1-11ea-2e09-7ffbcdf43c37
 # ╠═10f850fc-f0d1-11ea-2a58-2326a9ea1e2a
 # ╟─7b4d5270-f0d3-11ea-0b48-79005f20602c
 # ╠═6fd3b7a4-f0d3-11ea-1f26-fb9740cd16e0
 # ╟─fe3559e0-f13b-11ea-06c8-a314e44c20d6
-# ╟─b7ea8a28-f0d7-11ea-3e98-7b19a1f58304
-# ╟─0ccf76e4-f0d9-11ea-07c9-0159e3d4d733
-# ╟─236dab08-f13d-11ea-1922-a3b82cfc7f51
-# ╟─03434682-f13b-11ea-2b6e-11ad781e9a51
-# ╟─ca13597a-f168-11ea-1a2c-ff7b98b7b2c7
-# ╟─f22aa34e-f0df-11ea-3053-3dcdc070ec2f
+# ╠═b7ea8a28-f0d7-11ea-3e98-7b19a1f58304
+# ╠═0ccf76e4-f0d9-11ea-07c9-0159e3d4d733
+# ╠═03434682-f13b-11ea-2b6e-11ad781e9a51
+# ╠═ca13597a-f168-11ea-1a2c-ff7b98b7b2c7
+# ╠═32e89b90-5db9-11eb-0215-19ea9a3f7bb7
+# ╟─9de86910-5db5-11eb-3ad9-df952de78656
+# ╠═f22aa34e-f0df-11ea-3053-3dcdc070ec2f
 # ╟─9232dcc8-f188-11ea-08fe-b787ea93c598
 # ╠═7864bd00-f146-11ea-0020-7fccb3913d8b
-# ╠═b369584c-f183-11ea-260a-35dc797e63ad
-# ╠═b2cbe058-f183-11ea-39dc-23d4a5b92796
-# ╟─9d9cccb2-f118-11ea-1638-c76682e636b2
-# ╟─c821b906-f0d8-11ea-2df0-8f2d06964aa2
-# ╟─6da3fdfe-f0dd-11ea-2407-7b85217b35cc
+# ╟─b369584c-f183-11ea-260a-35dc797e63ad
+# ╟─b2cbe058-f183-11ea-39dc-23d4a5b92796
+# ╠═9d9cccb2-f118-11ea-1638-c76682e636b2
+# ╠═b5f13970-5db9-11eb-176c-df5892a14eb5
+# ╠═c821b906-f0d8-11ea-2df0-8f2d06964aa2
+# ╟─64ef32b0-5dba-11eb-181f-ada456a08702
+# ╠═6da3fdfe-f0dd-11ea-2407-7b85217b35cc
+# ╠═f4246190-5db9-11eb-20b8-cf4ef36b1a87
 # ╠═885ec336-f146-11ea-00c4-c1d1ab4c0001
