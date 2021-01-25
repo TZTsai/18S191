@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.12
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -76,7 +76,10 @@ md"_Let's create a package environment:_"
 # ╔═╡ 0d144802-f319-11ea-0028-cd97a776a3d0
 #img = load(download("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Piet_Mondriaan%2C_1930_-_Mondrian_Composition_II_in_Red%2C_Blue%2C_and_Yellow.jpg/300px-Piet_Mondriaan%2C_1930_-_Mondrian_Composition_II_in_Red%2C_Blue%2C_and_Yellow.jpg"))
 #img = load(download("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Hilma_af_Klint_-_Group_IX_SUW%2C_The_Swan_No._1_%2813947%29.jpg/477px-Hilma_af_Klint_-_Group_IX_SUW%2C_The_Swan_No._1_%2813947%29.jpg"))
-img = load(download("https://i.imgur.com/4SRnmkj.png"))
+begin 
+	img_url = "https://assets.pokemon.com/assets//cms2/img/video-games/_tiles/pokemon-go/01192021/pokemon-go-169.jpg"
+	img = load(download(img_url))
+end
 
 # ╔═╡ cc9fcdae-f314-11ea-1b9a-1f68b792f005
 md"""
@@ -159,7 +162,8 @@ function remove_in_each_row_no_vcat(img, column_numbers)
 	for (i, j) in enumerate(column_numbers)
 		# EDIT THE FOLLOWING LINE and split it into two lines
 		# to avoid using `vcat`.
-		img′[i, :] .= vcat(img[i, 1:j-1], img[i, j+1:end])
+		img′[i, 1:j-1] .= @view img[i, 1:j-1]
+		img′[i, j:end] .= @view img[i, j+1:end]
 	end
 	img′
 end
@@ -203,7 +207,10 @@ function remove_in_each_row_views(img, column_numbers)
 	for (i, j) in enumerate(column_numbers)
 		# EDIT THE FOLLOWING LINE and split it into two lines
 		# to avoid using `vcat`.
-		img′[i, :] .= vcat(img[i, 1:j-1], img[i, j+1:end])
+		@views begin
+			img′[i, 1:j-1] .= img[i, 1:j-1]
+			img′[i, j:end] .= img[i, j+1:end]
+		end
 	end
 	img′
 end
@@ -282,9 +289,14 @@ finally we define the `energy` function which takes the Sobel gradients along x 
 # ╔═╡ 6f37b34c-f31a-11ea-2909-4f2079bf66ec
 begin
 	energy(∇x, ∇y) = sqrt.(∇x.^2 .+ ∇y.^2)
+	
 	function energy(img)
-		∇y = convolve(brightness.(img), Kernel.sobel()[1])
-		∇x = convolve(brightness.(img), Kernel.sobel()[2])
+		if !(typeof(img[1, 1]) <: Number)
+			img = brightness.(img)
+		end
+		Sy, Sx = Kernel.sobel()
+		∇y = convolve(img, Sy)
+		∇x = convolve(img, Sx)
 		energy(∇x, ∇y)
 	end
 end
@@ -404,13 +416,15 @@ Return these two values in a tuple.
 # ╔═╡ 8ec27ef8-f320-11ea-2573-c97b7b908cb7
 ## returns lowest possible sum energy at pixel (i, j), and the column to jump to in row i+1.
 function least_energy(energies, i, j)
-	# base case
-	# if i == something
-	#    return energies[...] # no need for recursive computation in the base case!
-	# end
-	#
-	# induction
-	# combine results from recursive calls to `least_energy`.
+	m, n = size(energies)
+	
+	if i == m
+	   return energies[i, j], nothing
+	end
+	
+	j1, j2 = max(1, j-1), min(n, j+1)
+	e, j′ = findmin([least_energy(energies, i+1, j′)[1] for j′ in j1:j2])
+	return energies[i, j] + e, j′
 end
 
 # ╔═╡ a7f3d9f8-f3bb-11ea-0c1a-55bbb8408f09
@@ -448,8 +462,13 @@ This will give you the method used in the lecture to perform [exhaustive search 
 # ╔═╡ 85033040-f372-11ea-2c31-bb3147de3c0d
 function recursive_seam(energies, starting_pixel)
 	m, n = size(energies)
-	# Replace the following line with your code.
-	[rand(1:starting_pixel) for i=1:m]
+	seam = []
+	j = starting_pixel
+	for i in 1:m
+		push!(seam, j)
+		_, j = least_energy(energies, i, j)
+	end
+	seam
 end
 
 # ╔═╡ 1d55333c-f393-11ea-229a-5b1e9cabea6a
@@ -563,7 +582,24 @@ Now it's easy to see that the above algorithm is equivalent to one that populate
 
 # ╔═╡ ff055726-f320-11ea-32f6-2bf38d7dd310
 function least_energy_matrix(energies)
-	copy(energies)
+	m, n = size(energies)
+	
+	# least energy matrix
+	E = zeros(m, n)
+	E[end, :] = energies[end, :]
+	
+	for i in m-1:-1:1, j in 1:n
+		e = minimum(E[i+1,k] for k in max(1,j-1):min(n,j+1))
+		E[i,j] = energies[i,j] + e
+	end
+	
+	return E
+end
+
+# ╔═╡ 61f9cbe0-5f38-11eb-2f28-8bc7f46c16c7
+begin
+	img_energies = energy(img)
+	least_energy_matrix(img_energies)
 end
 
 # ╔═╡ 92e19f22-f37b-11ea-25f7-e321337e375e
@@ -578,9 +614,20 @@ function seam_from_precomputed_least_energy(energies, starting_pixel::Int)
 	least_energies = least_energy_matrix(energies)
 	m, n = size(least_energies)
 	
-	# Replace the following line with your code.
-	[starting_pixel for i=1:m]
+	j = starting_pixel
+	seam = [j]
+	
+	for i in 2:m
+		j_range = max(1, j-1) : min(n, j+1)
+		_, j = minimum(j -> (least_energies[i,j], j), j_range)
+		push!(seam, j)
+	end
+	
+	return seam
 end
+
+# ╔═╡ d55cccb0-5f3b-11eb-27fe-f15cd39aad75
+seam_from_precomputed_least_energy(img_energies, 2)
 
 # ╔═╡ 51df0c98-f3c5-11ea-25b8-af41dc182bac
 md"Compute shrunk image: $(@bind shrink_bottomup CheckBox())"
@@ -613,19 +660,22 @@ function mark_path(img, path)
 end
 
 # ╔═╡ 437ba6ce-f37d-11ea-1010-5f6a6e282f9b
-function shrink_n(img, n, min_seam, imgs=[]; show_lightning=true)
+function shrink_n(img, n, min_seam, imgs=[]; show_lightning=false)
 	n==0 && return push!(imgs, img)
 
 	e = energy(img)
-	seam_energy(seam) = sum(e[i, seam[i]]  for i in 1:size(img, 1))
-	_, min_j = findmin(map(j->seam_energy(min_seam(e, j)), 1:size(e, 2)))
-	min_seam_vec = min_seam(e, min_j)
-	img′ = remove_in_each_row(img, min_seam_vec)
+	seam_energy(seam) = sum(e[i, seam[i]] for i in 1:size(img, 1))
+	
+	seams = [min_seam(e, j) for j in 1:size(e, 2)]
+	seam = seams[argmin(map(seam_energy, seams))]
+
+	img′ = remove_in_each_row(img, seam)
 	if show_lightning
-		push!(imgs, mark_path(img, min_seam_vec))
+		push!(imgs, mark_path(img, seam))
 	else
 		push!(imgs, img′)
 	end
+	
 	shrink_n(img′, n-1, min_seam, imgs)
 end
 
@@ -638,17 +688,6 @@ end
 # ╔═╡ f626b222-f388-11ea-0d94-1736759b5f52
 if shrink_greedy
 	greedy_carved[greedy_n]
-end
-
-# ╔═╡ d88bc272-f392-11ea-0efd-15e0e2b2cd4e
-if shrink_recursive
-	recursive_carved = shrink_n(pika, 3, recursive_seam)
-	md"Shrink by: $(@bind recursive_n Slider(1:3, show_value=true))"
-end
-
-# ╔═╡ e66ef06a-f392-11ea-30ab-7160e7723a17
-if shrink_recursive
-	recursive_carved[recursive_n]
 end
 
 # ╔═╡ 4e3ef866-f3c5-11ea-3fb0-27d1ca9a9a3f
@@ -675,7 +714,7 @@ end
 
 # ╔═╡ 51e28596-f3c5-11ea-2237-2b72bbfaa001
 if shrink_bottomup
-	bottomup_carved = shrink_n(img, 200, seam_from_precomputed_least_energy)
+	bottomup_carved = shrink_n(img, 3, seam_from_precomputed_least_energy)
 	md"Shrink by: $(@bind bottomup_n Slider(1:200, show_value=true))"
 end
 
@@ -707,6 +746,17 @@ if compute_access
 	tracked = track_access(energy(pika))
 	least_energy(tracked, 1,7)
 	tracked.accesses[]
+end
+
+# ╔═╡ d88bc272-f392-11ea-0efd-15e0e2b2cd4e
+if shrink_recursive
+	recursive_carved = shrink_n(pika, 3, recursive_seam)
+	md"Shrink by: $(@bind recursive_n Slider(1:3, show_value=true))"
+end
+
+# ╔═╡ e66ef06a-f392-11ea-30ab-7160e7723a17
+if shrink_recursive
+	recursive_carved[recursive_n]
 end
 
 # ╔═╡ ffc17f40-f380-11ea-30ee-0fe8563c0eb1
@@ -895,7 +945,7 @@ bigbreak
 # ╟─980b1104-f394-11ea-0948-21002f26ee25
 # ╟─9945ae78-f395-11ea-1d78-cf6ad19606c8
 # ╟─87efe4c2-f38d-11ea-39cc-bdfa11298317
-# ╟─f6571d86-f388-11ea-0390-05592acb9195
+# ╠═f6571d86-f388-11ea-0390-05592acb9195
 # ╟─f626b222-f388-11ea-0d94-1736759b5f52
 # ╟─52452d26-f36c-11ea-01a6-313114b4445d
 # ╠═2a98f268-f3b6-11ea-1eea-81c28256a19e
@@ -916,7 +966,7 @@ bigbreak
 # ╠═e66ef06a-f392-11ea-30ab-7160e7723a17
 # ╟─c572f6ce-f372-11ea-3c9a-e3a21384edca
 # ╠═6d993a5c-f373-11ea-0dde-c94e3bbd1552
-# ╠═ea417c2a-f373-11ea-3bb0-b1b5754f2fac
+# ╟─ea417c2a-f373-11ea-3bb0-b1b5754f2fac
 # ╟─56a7f954-f374-11ea-0391-f79b75195f4d
 # ╠═b1d09bc8-f320-11ea-26bb-0101c9a204e2
 # ╠═3e8b0868-f3bd-11ea-0c15-011bbd6ac051
@@ -932,9 +982,11 @@ bigbreak
 # ╟─4f48c8b8-f39d-11ea-25d2-1fab031a514f
 # ╟─24792456-f37b-11ea-07b2-4f4c8caea633
 # ╠═ff055726-f320-11ea-32f6-2bf38d7dd310
+# ╠═61f9cbe0-5f38-11eb-2f28-8bc7f46c16c7
 # ╟─e0622780-f3b4-11ea-1f44-59fb9c5d2ebd
 # ╟─92e19f22-f37b-11ea-25f7-e321337e375e
 # ╠═795eb2c4-f37b-11ea-01e1-1dbac3c80c13
+# ╠═d55cccb0-5f3b-11eb-27fe-f15cd39aad75
 # ╠═51df0c98-f3c5-11ea-25b8-af41dc182bac
 # ╠═51e28596-f3c5-11ea-2237-2b72bbfaa001
 # ╠═0a10acd8-f3c6-11ea-3e2f-7530a0af8c7f
@@ -942,7 +994,7 @@ bigbreak
 # ╟─0fbe2af6-f381-11ea-2f41-23cd1cf930d9
 # ╟─48089a00-f321-11ea-1479-e74ba71df067
 # ╟─6b4d6584-f3be-11ea-131d-e5bdefcc791b
-# ╟─437ba6ce-f37d-11ea-1010-5f6a6e282f9b
+# ╠═437ba6ce-f37d-11ea-1010-5f6a6e282f9b
 # ╟─ef88c388-f388-11ea-3828-ff4db4d1874e
 # ╟─ef26374a-f388-11ea-0b4e-67314a9a9094
 # ╟─6bdbcf4c-f321-11ea-0288-fb16ff1ec526
