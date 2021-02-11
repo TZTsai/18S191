@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.14
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -146,10 +146,10 @@ isinalphabet('a'), isinalphabet('+')
 md"👉 Use `filter` to extract just the characters from our alphabet out of `messy_sentence_1`:"
 
 # ╔═╡ 3a5ee698-f998-11ea-0452-19b70ed11a1d
-messy_sentence_1 = "#wow 2020 ¥500 (blingbling!)"
+messy_sentence_1 = "#wow 2020 ¥500 (Blingbling!)"
 
 # ╔═╡ 75694166-f998-11ea-0428-c96e1113e2a0
-cleaned_sentence_1 = missing
+cleaned_sentence_1 = filter(isinalphabet, messy_sentence_1)
 
 # ╔═╡ 05f0182c-f999-11ea-0a52-3d46c65a049e
 md"""
@@ -165,7 +165,7 @@ md"👉 Use the function `lowercase` to convert `messy_sentence_2` into a lower 
 messy_sentence_2 = "Awesome! 😍"
 
 # ╔═╡ d3a4820e-f998-11ea-2a5c-1f37e2a6dd0a
-cleaned_sentence_2 = missing
+cleaned_sentence_2 = filter(isinalphabet, lowercase(messy_sentence_2))
 
 # ╔═╡ aad659b8-f998-11ea-153e-3dae9514bfeb
 md"""
@@ -216,7 +216,7 @@ $(html"<br>")
 # ╔═╡ 4affa858-f92e-11ea-3ece-258897c37e51
 function clean(text)
 	# we turn everything to lowercase to keep the number of letters small
-	missing
+	return filter(isinalphabet, lowercase(unaccent(text)))
 end
 
 # ╔═╡ e00d521a-f992-11ea-11e0-e9da8255b23b
@@ -260,7 +260,8 @@ $(html"<br>")
 
 # ╔═╡ 92bf9fd2-f9a5-11ea-25c7-5966e44db6c6
 unused_letters = let
-	['a', 'b']
+ 	absent_idx = findall(iszero, sample_freqs)
+	[alphabet[i] for i in absent_idx]
 end
 
 # ╔═╡ 01215e9a-f9a9-11ea-363b-67392741c8d4
@@ -296,14 +297,14 @@ function transition_counts(cleaned_sample)
 			b in alphabet]
 end
 
+# ╔═╡ 322210a0-6332-11eb-3165-db96a6d4ed1d
+string('a', 'b')
+
 # ╔═╡ 80118bf8-f931-11ea-34f3-b7828113ffd8
 normalize_array(x) = x ./ sum(x)
 
 # ╔═╡ 7f4f6ce4-f931-11ea-15a4-b3bec6a7e8b6
 transition_frequencies = normalize_array ∘ transition_counts;
-
-# ╔═╡ d40034f6-f9ab-11ea-3f65-7ffd1256ae9d
-transition_frequencies(first_sample)
 
 # ╔═╡ 689ed82a-f9ae-11ea-159c-331ff6660a75
 md"What we get is a **27 by 27 matrix**. Each entry corresponds to a character pair. The _row_ corresponds to the first character, the _column_ is the second character. Let's visualize this:"
@@ -314,7 +315,7 @@ Answer the following questions with respect to the **cleaned English sample text
 """
 
 # ╔═╡ 6896fef8-f9af-11ea-0065-816a70ba9670
-sample_freq_matrix = transition_frequencies(first_sample);
+sample_freq_matrix = transition_frequencies(first_sample)
 
 # ╔═╡ 39152104-fc49-11ea-04dd-bb34e3600f2f
 if first_sample === missing
@@ -328,13 +329,13 @@ end
 md"""👉 What is the frequency of the combination `"th"`?"""
 
 # ╔═╡ 1b4c0c28-f9ab-11ea-03a6-69f69f7f90ed
-th_frequency = missing
+th_frequency = sample_freq_matrix[index_of_letter.(['t', 'h'])...]
 
 # ╔═╡ 1f94e0a2-f9ab-11ea-1347-7dd906ebb09d
 md"""👉 What about `"ht"`?"""
 
 # ╔═╡ 41b2df7c-f931-11ea-112e-ede3b16f357a
-ht_frequency = missing
+ht_frequency = sample_freq_matrix[index_of_letter.(['h', 't'])...]
 
 # ╔═╡ 1dd1e2f4-f930-11ea-312c-5ff9e109c7f6
 md"""
@@ -342,7 +343,7 @@ md"""
 """
 
 # ╔═╡ 65c92cac-f930-11ea-20b1-6b8f45b3f262
-double_letters = ['x', 'y']
+double_letters = alphabet[findall(!iszero, diag(sample_freq_matrix))]
 
 # ╔═╡ 4582ebf4-f930-11ea-03b2-bf4da1a8f8df
 md"""
@@ -350,7 +351,7 @@ md"""
 """
 
 # ╔═╡ 7898b76a-f930-11ea-2b7e-8126ec2b8ffd
-most_likely_to_follow_w = 'x'
+most_likely_to_follow_w = alphabet[argmax(sample_freq_matrix[:, index_of_letter('w')])]
 
 # ╔═╡ 458cd100-f930-11ea-24b8-41a49f6596a0
 md"""
@@ -358,7 +359,7 @@ md"""
 """
 
 # ╔═╡ bc401bee-f931-11ea-09cc-c5efe2f11194
-most_likely_to_precede_w = 'x'
+most_likely_to_precede_w = alphabet[argmax(sample_freq_matrix[index_of_letter('w'), :])]
 
 # ╔═╡ 45c20988-f930-11ea-1d12-b782d2c01c11
 md"""
@@ -367,7 +368,7 @@ md"""
 
 # ╔═╡ cc62929e-f9af-11ea-06b9-439ac08dcb52
 row_col_answer = md"""
-
+row sum = 1, col sum = 1. Because each entry is a frequency. All frequencies must sum to 1.
 """
 
 # ╔═╡ 2f8dedfc-fb98-11ea-23d7-2159bdb6a299
@@ -393,6 +394,9 @@ md"""
 **Random letters at the correct transition frequencies:**
 """
 
+# ╔═╡ 9916a762-6334-11eb-22fd-43dfd1501374
+
+
 # ╔═╡ 0e465160-f937-11ea-0ebb-b7e02d71e8a8
 function sample_text(A, n)
 	
@@ -406,6 +410,11 @@ function sample_text(A, n)
 	end
 	
 	String(alphabet[indices])
+end
+
+# ╔═╡ 10aa39e0-6335-11eb-3d94-6fad6051deb1
+map(1:10) do x
+	2x 
 end
 
 # ╔═╡ 141af892-f933-11ea-1e5f-154167642809
@@ -452,8 +461,11 @@ The only question left is: How do we compare two matrices? When two matrices are
 
 # ╔═╡ 13c89272-f934-11ea-07fe-91b5d56dedf8
 function matrix_distance(A, B)
-	missing # do something with A .- B
+	sum(abs.(A .- B))
 end
+
+# ╔═╡ c96ea420-6335-11eb-0d91-cf1e6749c489
+typeof(samples)
 
 # ╔═╡ 7d60f056-f931-11ea-39ae-5fa18a955a77
 distances = map(samples) do sample
@@ -467,6 +479,9 @@ try
 catch
 end
 
+# ╔═╡ b3ad2ee0-6335-11eb-0f4d-573bfeb20f90
+distances
+
 # ╔═╡ 8c7606f0-fb93-11ea-0c9c-45364892cbb8
 md"""
 We have written a cell that selects the language with the _smallest distance_ to the mystery language. Make sure sure that `matrix_distance` is working correctly, and [scroll up](#mystery-detect) to the mystery text to see it in action!
@@ -474,6 +489,27 @@ We have written a cell that selects the language with the _smallest distance_ to
 #### Further reading
 It turns out that the SVD of the transition matrix can mysteriously group the alphabet into vowels and consonants, without any extra information. See [this paper](http://languagelog.ldc.upenn.edu/myl/Moler1983.pdf) if you want to try it yourself! We found that removing the space from `alphabet` (to match the paper) gave better results.
 """
+
+# ╔═╡ 3dccae20-6336-11eb-3301-012a7c8c2ec6
+deleteat!(alphabet, alphabet .== ' '); alphabet
+
+# ╔═╡ fa4cb640-6335-11eb-3082-795a8e6d2edd
+clf = let
+	sample_freqs = transition_frequencies(samples.English)
+	U, Σ, V = svd(sample_freqs)
+	u2 = U[:,2]
+	v2 = V[:,2]
+	class(a) = let i = index_of_letter(a)
+		u2[i] * v2[i] >= 0 ? 'n' : u2[i] > 0 ? 'v' : 'c'
+	end
+	class
+end
+
+# ╔═╡ b5b52c80-6338-11eb-0b9e-bdcfebdf03e0
+Dict(l => clf(l) for l in alphabet)
+
+# ╔═╡ e1bf2150-6338-11eb-0696-eb267378bd59
+filter(l -> clf(l) == 'v', alphabet)
 
 # ╔═╡ 82e0df62-fb54-11ea-3fff-b16c87a7d45b
 md"""
@@ -568,7 +604,7 @@ ngrams([1, 2, 3, 42], 2) == bigrams([1, 2, 3, 42])
 
 # ╔═╡ 7be98e04-fb6b-11ea-111d-51c48f39a4e9
 function ngrams(words, n)
-	missing
+	[words[i:i+n-1] for i in 1:length(words)-n+1]
 end
 
 # ╔═╡ 052f822c-fb7b-11ea-382f-af4d6c2b4fdb
@@ -638,7 +674,9 @@ Dict(
 function word_counts(words::Vector)
 	counts = Dict()
 	
-	# your code here
+	for word in words
+		counts[word] = get(counts, word, 0) + 1
+	end
 	
 	return counts
 end
@@ -652,7 +690,7 @@ How many times does `"Emma"` occur in the book?
 """
 
 # ╔═╡ 953363dc-fb84-11ea-1128-ebdfaf5160ee
-emma_count = missing
+emma_count = word_counts(emma_words)["Emma"]
 
 # ╔═╡ 294b6f50-fb84-11ea-1382-03e9ab029a2d
 md"""
@@ -678,11 +716,17 @@ If the same ngram occurs multiple times (e.g. "said Emma laughing"), then the la
 👉 Write the function `completions_cache`, which takes an array of ngrams (i.e. an array of arrays of words, like the result of your `ngram` function), and returns a dictionary like described above.
 """
 
+# ╔═╡ 3cd46740-633d-11eb-00dd-c149fcbe4d9e
+[1, 2][:2]
+
 # ╔═╡ b726f824-fb5e-11ea-328e-03a30544037f
 function completions_cache(grams)
 	cache = Dict()
 	
-	# your code here
+	for gram in grams
+		head, tail = gram[1:end-1], gram[end]
+		cache[head] = push!(get(cache, head, []), tail)
+	end
 	
 	cache
 end
@@ -692,6 +736,12 @@ let
 	trigrams = ngrams(split("to be or not to be that is the question", " "), 3)
 	completions_cache(trigrams)
 end
+
+# ╔═╡ ced0d700-633d-11eb-2917-2b4bb9b2b74d
+forest_words
+
+# ╔═╡ 328ebeb0-633e-11eb-2aa2-ad738181c6f4
+rand(bigrams(split("fasw faew raew gwre gar we")))
 
 # ╔═╡ 3d105742-fb8d-11ea-09b0-cd2e77efd15c
 md"""
@@ -712,7 +762,7 @@ function generate_from_ngrams(grams, num_words)
 	
 	# we need to start the sequence with at least n-1 words.
 	# a simple way to do so is to pick a random ngram!
-	sequence = [rand(grams)...]
+	sequence = rand(grams)
 	
 	# we iteratively add one more word at a time
 	for i ∈ n+1:num_words
@@ -735,7 +785,10 @@ function ngrams_circular(words, n)
 end
 
 # ╔═╡ abe2b862-fb69-11ea-08d9-ebd4ba3437d5
-completions_cache(ngrams_circular(forest_words, 3))
+completions_cache(ngrams_circular(forest_words, 3))[["", "Although"]]
+
+# ╔═╡ 96538430-633e-11eb-1fb1-834a3e5d0fbc
+collect("gasgadsadsas")
 
 # ╔═╡ 4b27a89a-fb8d-11ea-010b-671eba69364e
 """
@@ -764,6 +817,9 @@ function generate(source_text::AbstractString, s; n=3, use_words=true)
 	end
 end
 
+# ╔═╡ 54c7ecd0-633f-11eb-0bde-e358ad10b1c9
+generate("to be or not to be that is the question", 30)
+
 # ╔═╡ d7b7a14a-fb90-11ea-3e2b-2fd8f379b4d8
 md"
 #### Interactive demo
@@ -786,9 +842,6 @@ md"""
 
 Uncomment the cell below to generate some Jane Austen text:
 """
-
-# ╔═╡ 49b69dc2-fb8f-11ea-39af-030b5c5053c3
-# generate(emma, 100; n=4) |> Quote
 
 # ╔═╡ cc07f576-fbf3-11ea-2c6f-0be63b9356fc
 if student.name == "Jazzy Doe"
@@ -839,6 +892,9 @@ generate(
 	use_words=true
 ) |> Quote
 
+# ╔═╡ 49b69dc2-fb8f-11ea-39af-030b5c5053c3
+generate(emma, 200; n=5) |> Quote
+
 # ╔═╡ ddef9c94-fb96-11ea-1f17-f173a4ff4d89
 function compimg(img, labels=[c*d for c in replace(alphabet, ' ' => "_"), d in replace(alphabet, ' ' => "_")])
 	xmax, ymax = size(img)
@@ -867,7 +923,7 @@ function show_pair_frequencies(A)
 end
 
 # ╔═╡ ace3dc76-f9ae-11ea-2bee-3d0bfa57cfbc
-show_pair_frequencies(transition_frequencies(first_sample))
+show_pair_frequencies(sample_freq_matrix)
 
 # ╔═╡ ffc17f40-f380-11ea-30ee-0fe8563c0eb1
 hint(text) = Markdown.MD(Markdown.Admonition("hint", "Hint", [text]))
@@ -1147,11 +1203,11 @@ bigbreak
 # ╟─38d1ace8-f991-11ea-0b5f-ed7bd08edde5
 # ╠═ddf272c8-f990-11ea-2135-7bf1a6dca0b7
 # ╟─3cc688d2-f996-11ea-2a6f-0b4c7a5b74c2
-# ╟─d67034d0-f92d-11ea-31c2-f7a38ebb412f
+# ╠═d67034d0-f92d-11ea-31c2-f7a38ebb412f
 # ╟─a094e2ac-f92d-11ea-141a-3566552dd839
 # ╠═27c9a7f4-f996-11ea-1e46-19e3fc840ad9
 # ╟─f2a4edfa-f996-11ea-1a24-1ba78fd92233
-# ╟─5c74a052-f92e-11ea-2c5b-0f1a3a14e313
+# ╠═5c74a052-f92e-11ea-2c5b-0f1a3a14e313
 # ╠═dcc4156c-f997-11ea-3e6f-057cd080d9db
 # ╟─129fbcfe-f998-11ea-1c96-0fd3ccd2dcf8
 # ╠═3a5ee698-f998-11ea-0452-19b70ed11a1d
@@ -1176,7 +1232,7 @@ bigbreak
 # ╟─571d28d6-f960-11ea-1b2e-d5977ecbbb11
 # ╠═6a64ab12-f960-11ea-0d92-5b88943cdb1a
 # ╟─603741c2-f9a4-11ea-37ce-1b36ecc83f45
-# ╟─b3de6260-f9a4-11ea-1bae-9153a92c3fe5
+# ╠═b3de6260-f9a4-11ea-1bae-9153a92c3fe5
 # ╠═a6c36bd6-f9a4-11ea-1aba-f75cecc90320
 # ╟─6d3f9dae-f9a5-11ea-3228-d147435e266d
 # ╠═92bf9fd2-f9a5-11ea-25c7-5966e44db6c6
@@ -1185,16 +1241,16 @@ bigbreak
 # ╟─dcffd7d2-f9a6-11ea-2230-b1afaecfdd54
 # ╟─b3dad856-f9a7-11ea-1552-f7435f1cb605
 # ╟─01215e9a-f9a9-11ea-363b-67392741c8d4
-# ╟─be55507c-f9a7-11ea-189c-4ffe8377212e
+# ╠═be55507c-f9a7-11ea-189c-4ffe8377212e
 # ╟─8ae13cf0-f9a8-11ea-3919-a735c4ed9e7f
 # ╟─343d63c2-fb58-11ea-0cce-efe1afe070c2
-# ╟─b5b8dd18-f938-11ea-157b-53b145357fd1
+# ╠═b5b8dd18-f938-11ea-157b-53b145357fd1
 # ╟─0e872a6c-f937-11ea-125e-37958713a495
 # ╟─77623f3e-f9a9-11ea-2f46-ff07bd27cd5f
 # ╠═fbb7c04e-f92d-11ea-0b81-0be20da242c8
+# ╠═322210a0-6332-11eb-3165-db96a6d4ed1d
 # ╠═80118bf8-f931-11ea-34f3-b7828113ffd8
 # ╠═7f4f6ce4-f931-11ea-15a4-b3bec6a7e8b6
-# ╠═d40034f6-f9ab-11ea-3f65-7ffd1256ae9d
 # ╟─689ed82a-f9ae-11ea-159c-331ff6660a75
 # ╠═ace3dc76-f9ae-11ea-2bee-3d0bfa57cfbc
 # ╟─0b67789c-f931-11ea-113c-35e5edafcbbf
@@ -1209,7 +1265,7 @@ bigbreak
 # ╠═65c92cac-f930-11ea-20b1-6b8f45b3f262
 # ╟─671525cc-f930-11ea-0e71-df9d4aae1c05
 # ╟─4582ebf4-f930-11ea-03b2-bf4da1a8f8df
-# ╟─7898b76a-f930-11ea-2b7e-8126ec2b8ffd
+# ╠═7898b76a-f930-11ea-2b7e-8126ec2b8ffd
 # ╟─a5fbba46-f931-11ea-33e1-054be53d986c
 # ╟─458cd100-f930-11ea-24b8-41a49f6596a0
 # ╠═bc401bee-f931-11ea-09cc-c5efe2f11194
@@ -1225,24 +1281,32 @@ bigbreak
 # ╟─489b03d4-f9b0-11ea-1de0-11d4fe4e7c69
 # ╟─d83f8bbc-f9af-11ea-2392-c90e28e96c65
 # ╟─fd202410-f936-11ea-1ad6-b3629556b3e0
-# ╟─0e465160-f937-11ea-0ebb-b7e02d71e8a8
+# ╟─9916a762-6334-11eb-22fd-43dfd1501374
+# ╠═0e465160-f937-11ea-0ebb-b7e02d71e8a8
+# ╠═10aa39e0-6335-11eb-3d94-6fad6051deb1
 # ╟─6718d26c-f9b0-11ea-1f5a-0f22f7ddffe9
 # ╟─141af892-f933-11ea-1e5f-154167642809
 # ╟─7eed9dde-f931-11ea-38b0-db6bfcc1b558
 # ╟─7e3282e2-f931-11ea-272f-d90779264456
-# ╟─7d1439e6-f931-11ea-2dab-41c66a779262
+# ╠═7d1439e6-f931-11ea-2dab-41c66a779262
+# ╠═b3ad2ee0-6335-11eb-0f4d-573bfeb20f90
 # ╠═7df55e6c-f931-11ea-33b8-fdc3be0b6cfa
 # ╟─292e0384-fb57-11ea-0238-0fbe416fc976
 # ╠═7dabee08-f931-11ea-0cb2-c7d5afd21551
 # ╟─3736a094-fb57-11ea-1d39-e551aae62b1d
 # ╠═13c89272-f934-11ea-07fe-91b5d56dedf8
-# ╟─7d60f056-f931-11ea-39ae-5fa18a955a77
+# ╠═c96ea420-6335-11eb-0d91-cf1e6749c489
+# ╠═7d60f056-f931-11ea-39ae-5fa18a955a77
 # ╟─b09f5512-fb58-11ea-2527-31bea4cee823
 # ╟─8c7606f0-fb93-11ea-0c9c-45364892cbb8
+# ╠═3dccae20-6336-11eb-3301-012a7c8c2ec6
+# ╠═fa4cb640-6335-11eb-3082-795a8e6d2edd
+# ╠═b5b52c80-6338-11eb-0b9e-bdcfebdf03e0
+# ╠═e1bf2150-6338-11eb-0696-eb267378bd59
 # ╟─568f0d3a-fb54-11ea-0f77-171718ef12a5
 # ╟─82e0df62-fb54-11ea-3fff-b16c87a7d45b
 # ╠═b7601048-fb57-11ea-0754-97dc4e0623a1
-# ╟─cc42de82-fb5a-11ea-3614-25ef961729ab
+# ╠═cc42de82-fb5a-11ea-3614-25ef961729ab
 # ╠═d66fe2b2-fb5a-11ea-280f-cfb12b8296ac
 # ╠═4ca8e04a-fb75-11ea-08cc-2fdef5b31944
 # ╟─6f613cd2-fb5b-11ea-1669-cbd355677649
@@ -1266,20 +1330,25 @@ bigbreak
 # ╟─808abf6e-fb84-11ea-0785-2fc3f1c4a09f
 # ╠═953363dc-fb84-11ea-1128-ebdfaf5160ee
 # ╟─294b6f50-fb84-11ea-1382-03e9ab029a2d
+# ╠═3cd46740-633d-11eb-00dd-c149fcbe4d9e
 # ╠═b726f824-fb5e-11ea-328e-03a30544037f
 # ╠═18355314-fb86-11ea-0738-3544e2e3e816
+# ╠═54c7ecd0-633f-11eb-0bde-e358ad10b1c9
+# ╠═ced0d700-633d-11eb-2917-2b4bb9b2b74d
 # ╠═abe2b862-fb69-11ea-08d9-ebd4ba3437d5
+# ╠═328ebeb0-633e-11eb-2aa2-ad738181c6f4
 # ╟─3d105742-fb8d-11ea-09b0-cd2e77efd15c
-# ╟─a72fcf5a-fb62-11ea-1dcc-11451d23c085
-# ╟─f83991c0-fb7c-11ea-0e6f-1f80709d00c1
-# ╟─4b27a89a-fb8d-11ea-010b-671eba69364e
+# ╠═a72fcf5a-fb62-11ea-1dcc-11451d23c085
+# ╠═f83991c0-fb7c-11ea-0e6f-1f80709d00c1
+# ╠═96538430-633e-11eb-1fb1-834a3e5d0fbc
+# ╠═4b27a89a-fb8d-11ea-010b-671eba69364e
 # ╟─d7b7a14a-fb90-11ea-3e2b-2fd8f379b4d8
 # ╟─1939dbea-fb63-11ea-0bc2-2d06b2d4b26c
 # ╟─70169682-fb8c-11ea-27c0-2dad2ff3080f
-# ╟─b5dff8b8-fb6c-11ea-10fc-37d2a9adae8c
-# ╟─402562b0-fb63-11ea-0769-375572cc47a8
-# ╟─ee8c5808-fb5f-11ea-19a1-3d58217f34dc
-# ╟─2521bac8-fb8f-11ea-04a4-0b077d77529e
+# ╠═b5dff8b8-fb6c-11ea-10fc-37d2a9adae8c
+# ╠═402562b0-fb63-11ea-0769-375572cc47a8
+# ╠═ee8c5808-fb5f-11ea-19a1-3d58217f34dc
+# ╠═2521bac8-fb8f-11ea-04a4-0b077d77529e
 # ╠═49b69dc2-fb8f-11ea-39af-030b5c5053c3
 # ╟─7f341c4e-fb54-11ea-1919-d5421d7a2c75
 # ╟─cc07f576-fbf3-11ea-2c6f-0be63b9356fc

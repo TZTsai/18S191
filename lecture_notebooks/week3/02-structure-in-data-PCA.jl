@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.14
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -14,7 +14,7 @@ macro bind(def, element)
 end
 
 # ╔═╡ 0dcfd858-f867-11ea-301c-c3ca0a224117
-using Plots
+using Plots; plotly(size=(600, 450), ms=3)
 
 # ╔═╡ 1e058ba2-ec94-11ea-09af-7f9f9cc3a233
 using PlutoUI
@@ -121,7 +121,7 @@ scatter(xx, yy, alpha=0.5, framestyle=:origin, label="original image", leg=:topl
 begin
 	scatter(xx, yy, 
 			leg=:topleft, label="rank-1", ms=3, alpha=0.3, 
-			size=(500, 400), m=:square, c=:red,
+			m=:square, c=:red,
 			framestyle=:origin)
 
 	xs = noisy_image[1, :]
@@ -148,9 +148,9 @@ md"The data are given by pairs $(x_i, y_i)$. We can highlight the $i$th data poi
 
 # ╔═╡ 2a705962-ec94-11ea-1181-2f001ccf472f
 begin 
-	scatter(xs, ys, ms=4, alpha=0.5, ratio=1, leg=false, size=(500, 400),
+	scatter(xs, ys, alpha=0.5, ratio=1, leg=false, 
 			framestyle=:origin)
-	scatter!([xs[i]], [ys[i]], ms=8, alpha=0.8, c=:red)
+	scatter!([xs[i]], [ys[i]], ms=3, alpha=0.8, c=:red)
 end
 
 
@@ -203,7 +203,7 @@ end
 
 # ╔═╡ 6dec0db8-ec93-11ea-24ad-e17870ee64c2
 begin
-	scatter(xs_centered, ys_centered, ms=5, alpha=0.5, ratio=1, leg=false, 
+	scatter(xs_centered, ys_centered, ms=3, alpha=0.5, ratio=1, leg=false, 
 			framestyle=:origin)
 
 	vline!([-2*width, 2*width], ls=:dash, lw=1.5)
@@ -291,7 +291,7 @@ p2 = begin
 end;
 
 # ╔═╡ 2ffe7ed0-f870-11ea-06aa-390581500ca1
-plot(p1, p2)
+plot(p1, p2, size=(600, 450))
 
 # ╔═╡ a5cdad52-f906-11ea-0486-755a6403a367
 md"Let's plot the variance in a direction $\theta$ as a function of $\theta$:"
@@ -330,7 +330,7 @@ end
 
 # ╔═╡ 045b9b98-f8ff-11ea-0d49-5b209319e951
 begin
-	scatter(xs_centered, ys_centered, ms=5, alpha=0.3, ratio=1, leg=false, 
+	scatter(xs_centered, ys_centered, alpha=0.3, ratio=1, leg=false, 
 			framestyle=:origin)
 
 	plot!([(0, 0), 2*sqrt(fmax) .* (cos(θmax), sin(θmax))], arrow=true, lw=3, c=:red)
@@ -368,6 +368,9 @@ Similarly to what we did above, we need to calculate the ellipsoid that best fit
 md"In more than 3D we can no longer visualise the data, but the same idea applies. The calculations are done using the SVD.
 
 If the widths of the ellipsoid in some directions are very small, we can ignore those directions and hence reduce the dimensionality of the data, by changing coordinates to the principal components."
+
+# ╔═╡ d338b3c0-6226-11eb-2ed0-736fbade6411
+plotly()
 
 # ╔═╡ eb961e36-f899-11ea-39a9-eb33c949b79d
 @bind ϕ1 Slider(0:0.1:180, show_value=true, default=30)
@@ -435,19 +438,25 @@ function split_up(v, m, n)
 	return v[1:m], v[m+1:m+n], v[m+n+1:2m+n], v[2m+n+1:2m+2n]
 end
 
+# ╔═╡ 244ab8ae-6229-11eb-2784-ab47beaba775
+import Pkg; Pkg.add("ForwardDiff")
+
 # ╔═╡ 9822b22e-f89a-11ea-3da9-6199f9de033a
 nn = 400
 
+# ╔═╡ 66e64b60-6226-11eb-286c-3f5ef745690f
+nn
+
 # ╔═╡ 690364dc-f89a-11ea-30e0-d52fbc146ef7
-M7 = outer([3, 1, 1], rand(nn)) .+ 0.1 .* randn.();
+M7 = outer([3, 1, 1], rand(nn)) .+ 0.1 .* randn.()
 
 # ╔═╡ 8b6ea690-f899-11ea-2712-51508ae9c53e
-M8 = outer([1, 2, 3], rand(nn)) + outer([-1, 3, -1], rand(nn)) .+ 0.1 .* randn.();
+M8 = outer([1, 2, 3], rand(nn)) + outer([-1, 3, -1], rand(nn)) .+ 0.1 .* randn.()
 
 # ╔═╡ 9d5591de-f899-11ea-30d4-b1438066cc92
 begin
-	scatter(M7[1,:], M7[2,:], M7[3,:], camera=(ϕ1, ϕ2), alpha=0.5, label="rank 1")
-	scatter!(M8[1,:], M8[2,:], M8[3,:], camera=(ϕ1, ϕ2), alpha=0.5, label="rank 2")
+	scatter(M7[1,:], M7[2,:], M7[3,:], camera=(ϕ1, ϕ2), ms=1, alpha=0.5, label="rank 1", size=(750, 600))
+	scatter!(M8[1,:], M8[2,:], M8[3,:], camera=(ϕ1, ϕ2), ms=1, alpha=0.5, label="rank 2")
 end
 
 # ╔═╡ c66797fe-f899-11ea-094e-6d65bea15a11
@@ -466,6 +475,9 @@ function ff(v, m, n)
 	
 	loss(outer(v1, w1) + outer(v2, w2), M3)
 end
+
+# ╔═╡ 0582f8b0-622a-11eb-1865-297a7803a92e
+m, n
 
 # ╔═╡ 7040dc72-f893-11ea-3d22-4fbd452faa41
 ff2(v) = ff(v, m, n)
@@ -503,6 +515,9 @@ begin
 	M4_new[indices] .= M4[indices]
 end
 
+
+# ╔═╡ 2487cc40-622a-11eb-198f-a9f6212deb36
+size(xxx)
 
 # ╔═╡ 49b83854-f894-11ea-1f07-c95929bf9aea
 M5 = replace(M3, missing=>0)
@@ -569,7 +584,7 @@ colors[ismissing.(M3)]
 # ╠═38adc490-f867-11ea-1de5-3b633aff7c97
 # ╠═b183b6ca-f864-11ea-0b34-4dd3f4f5e69d
 # ╟─9cf23f9a-f864-11ea-3a08-af448aceefd8
-# ╟─a5b62530-f864-11ea-21e8-71ccfed487f8
+# ╠═a5b62530-f864-11ea-21e8-71ccfed487f8
 # ╠═5471ddce-f867-11ea-2519-21981f5ea68b
 # ╟─c41df86c-f865-11ea-1253-4942bbdbe9d2
 # ╟─7fca33ac-f864-11ea-2a8b-933eb382c172
@@ -581,13 +596,13 @@ colors[ismissing.(M3)]
 # ╟─8775b3fe-f866-11ea-3e6f-9732e39a3525
 # ╠═0dcfd858-f867-11ea-301c-c3ca0a224117
 # ╠═7bacf44e-f896-11ea-38be-2b16ae7ca99f
-# ╟─1147cbda-f867-11ea-08fa-ef6ed2ae1e93
+# ╠═1147cbda-f867-11ea-08fa-ef6ed2ae1e93
 # ╟─8a611e36-f867-11ea-121f-317b7c145fe3
 # ╟─f7371934-f867-11ea-3b53-d1566684585c
 # ╟─119dc35c-ec94-11ea-190c-23a750fbe7f4
 # ╟─1e058ba2-ec94-11ea-09af-7f9f9cc3a233
 # ╠═2043d4e6-ec94-11ea-1e1a-c75742eafe71
-# ╟─2a705962-ec94-11ea-1181-2f001ccf472f
+# ╠═2a705962-ec94-11ea-1181-2f001ccf472f
 # ╟─987c1f2e-f868-11ea-1125-0d8c02843ae4
 # ╟─9e78b048-f868-11ea-192e-d903265d1eb5
 # ╟─24df1f32-ec90-11ea-1f6d-03c1bfa5df8e
@@ -595,10 +610,10 @@ colors[ismissing.(M3)]
 # ╠═aec46a9b-f743-4cbd-97a7-3ef3cac78b12
 # ╟─1b8c743e-ec90-11ea-10aa-e3b94f768f82
 # ╟─f5358ce4-f86a-11ea-2989-b1f37be89183
-# ╟─870d3efa-f8fc-11ea-1593-1552511dcf86
+# ╠═870d3efa-f8fc-11ea-1593-1552511dcf86
 # ╟─03ab44c0-f8fd-11ea-2243-1f3580f98a65
 # ╠═2c3721da-f86b-11ea-36cf-3fe4c6622dc6
-# ╟─6dec0db8-ec93-11ea-24ad-e17870ee64c2
+# ╠═6dec0db8-ec93-11ea-24ad-e17870ee64c2
 # ╟─5fab2c32-f86b-11ea-2f27-ed5feaac1fa5
 # ╟─ae9a2900-ec93-11ea-1ae5-0748221328fc
 # ╟─b81c9db2-ec93-11ea-0dbd-4bd0951cb2cc
@@ -607,32 +622,34 @@ colors[ismissing.(M3)]
 # ╟─3547f296-f86f-11ea-1698-53d3c1a0bc30
 # ╟─7a83101e-f871-11ea-1d87-4946162777b5
 # ╟─e8276b4e-f86f-11ea-38be-218a72452b10
-# ╟─3b71142c-f86f-11ea-0d43-47011d00786c
+# ╠═3b71142c-f86f-11ea-0d43-47011d00786c
 # ╠═d71fdaea-f86f-11ea-1a1f-45e4d50926d3
 # ╠═78763674-f8fe-11ea-349c-d997f30ac1f6
 # ╠═757c6808-f8fe-11ea-39bb-47e4da65113a
-# ╟─88bbe1bc-f86f-11ea-3b6b-29175ddbea04
-# ╟─cd9e05ee-f86f-11ea-0422-25f8329c7ef2
+# ╠═88bbe1bc-f86f-11ea-3b6b-29175ddbea04
+# ╠═cd9e05ee-f86f-11ea-0422-25f8329c7ef2
 # ╟─7eb51908-f906-11ea-19d2-e947d81cb743
 # ╠═4f1980ea-f86f-11ea-3df2-35cca6c961f3
-# ╟─2ffe7ed0-f870-11ea-06aa-390581500ca1
+# ╠═2ffe7ed0-f870-11ea-06aa-390581500ca1
 # ╟─a5cdad52-f906-11ea-0486-755a6403a367
-# ╟─0115c974-f871-11ea-1204-054510848849
+# ╠═0115c974-f871-11ea-1204-054510848849
 # ╠═0935c870-f871-11ea-2a0b-b1b824379350
 # ╟─e4af4d26-f877-11ea-1de3-a9f8d389138e
 # ╟─bf57f674-f906-11ea-08eb-9b50818a025b
 # ╠═17e015fe-f8ff-11ea-17b4-a3aa072cd7b3
-# ╟─045b9b98-f8ff-11ea-0d49-5b209319e951
+# ╠═045b9b98-f8ff-11ea-0d49-5b209319e951
 # ╟─cfec1ec4-f8ff-11ea-265d-ab4844f0f739
-# ╟─e6e900b8-f904-11ea-2a0d-953b99785553
+# ╠═e6e900b8-f904-11ea-2a0d-953b99785553
 # ╟─aaff88e8-f877-11ea-1527-ff4d3db663db
 # ╟─aefa84de-f877-11ea-3e26-678008e9739e
 # ╟─0bd9358e-f879-11ea-2c83-ed4e7bf9d903
+# ╠═d338b3c0-6226-11eb-2ed0-736fbade6411
+# ╠═66e64b60-6226-11eb-286c-3f5ef745690f
 # ╠═690364dc-f89a-11ea-30e0-d52fbc146ef7
 # ╠═8b6ea690-f899-11ea-2712-51508ae9c53e
 # ╠═eb961e36-f899-11ea-39a9-eb33c949b79d
 # ╠═fdc87844-f899-11ea-1f2f-afe1cd43a68a
-# ╟─9d5591de-f899-11ea-30d4-b1438066cc92
+# ╠═9d5591de-f899-11ea-30d4-b1438066cc92
 # ╟─232454b4-f87a-11ea-1c69-91edfca1e589
 # ╟─2b44df7e-f87a-11ea-1690-dd459eae05a3
 # ╠═e5f67376-f917-11ea-1799-4341e3a758d5
@@ -643,7 +660,7 @@ colors[ismissing.(M3)]
 # ╟─63bad6ac-f87b-11ea-23ae-31522dfc74d5
 # ╟─2d8b13de-f901-11ea-3198-bb513ea1859c
 # ╠═31ed8eac-f901-11ea-3443-25c0c459803c
-# ╟─53819d1e-f902-11ea-3388-ebc082de7053
+# ╠═53819d1e-f902-11ea-3388-ebc082de7053
 # ╟─da7592da-f902-11ea-2cee-dbaefacdc382
 # ╠═a0e357a0-f902-11ea-1895-651d395d025d
 # ╟─1cf3e098-f864-11ea-3f3a-c53017b73490
@@ -652,12 +669,15 @@ colors[ismissing.(M3)]
 # ╠═72bb11b0-f88f-11ea-0e55-b1108300f854
 # ╠═feeeb24a-f88f-11ea-287f-219e53615f32
 # ╠═0bcc8852-f890-11ea-3715-11cbead7f636
+# ╠═0582f8b0-622a-11eb-1865-297a7803a92e
 # ╠═7040dc72-f893-11ea-3d22-4fbd452faa41
 # ╠═1dbcf15a-f890-11ea-008c-8935edfbdb1c
 # ╠═20e94d56-f890-11ea-3953-cbd70cec8ebd
+# ╠═244ab8ae-6229-11eb-2784-ab47beaba775
 # ╠═16887070-f891-11ea-2db3-47b91930e728
 # ╠═1d7e264c-f891-11ea-131d-134cbfff1ac0
 # ╠═7715e100-f893-11ea-3768-f9a59d8cc06c
+# ╠═2487cc40-622a-11eb-198f-a9f6212deb36
 # ╠═49b83854-f894-11ea-1f07-c95929bf9aea
 # ╠═81115c14-f893-11ea-0147-c9fd45b7b777
 # ╠═9da0cbaa-f893-11ea-2d94-951c1f947a2d

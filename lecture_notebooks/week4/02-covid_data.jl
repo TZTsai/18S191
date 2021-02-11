@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.14
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -26,9 +26,6 @@ begin
 	using LsqFit
 	using Plots
 end
-
-# ╔═╡ a26b8742-6a16-445a-ae77-25a4189c0f14
-
 
 # ╔═╡ cbd9c1aa-fc37-11ea-29d9-e3361406796f
 using Dates
@@ -100,13 +97,13 @@ We can use the `head` function to see only the first few lines of the data.
 # ╔═╡ a054e048-4fea-487c-9d06-463723c7151c
 begin
 	data_2 = rename(data, 1 => "province", 2 => "country", 3 => "latitude", 4 => "longitude")   
-	head(data_2)
+	first(data_2)
 end
 
 # ╔═╡ e9ad97b6-fdef-4f48-bd32-634cfd2ce0e6
 begin
 	rename!(data, 1 => "province", 2 => "country", 3 => "latitude", 4 => "longitude") 
-	head(data)
+	data[1:3, :]
 end
 
 # ╔═╡ aaa7c012-fc1f-11ea-3c6c-89630affb1db
@@ -139,9 +136,6 @@ countries = unique(all_countries)
 # ╔═╡ 5c1ec9ae-fc2e-11ea-397d-937c7ab1edb2
 @bind i Slider(1:length(countries), show_value=true)
 
-# ╔═╡ a39589ee-20e3-4f22-bf81-167fd815f6f9
-md"$(Text(countries[i]))"
-
 # ╔═╡ 9484ea9e-fc2e-11ea-137c-6da8212da5bd
 md"[Here we used **string interpolation** with `$` to put the text into a Markdown string.]"
 
@@ -150,6 +144,9 @@ md"You can also use `Select` to get a dropdown instead:"
 
 # ╔═╡ ada3ceb4-fc2e-11ea-2cbf-399430fa18b5
 @bind country Select(countries)
+
+# ╔═╡ a39589ee-20e3-4f22-bf81-167fd815f6f9
+md"$(Text(countries[i]), country)"
 
 # ╔═╡ 1633abe8-fc2f-11ea-2c7e-21b3348a3569
 md"""How can we extract the data for a particular country? First we need to know the exact name of the country. E.g. is the US written as "USA", or "United States"?
@@ -202,17 +199,23 @@ md"To extract a single row we need the **index** of the row (i.e. which number r
 # ╔═╡ 16a79308-fc36-11ea-16e5-e1087d7ebbda
 US_row = findfirst(==("US"), all_countries)
 
-# ╔═╡ a41db8ea-f0e0-461f-a298-bdcea42a67f3
+# ╔═╡ 95fd3450-6653-11eb-1efd-6fb7472b8089
 data[US_row, :]
 
+# ╔═╡ a41db8ea-f0e0-461f-a298-bdcea42a67f3
+typeof(data[US_row, :])
+
 # ╔═╡ f75e1992-fcfb-11ea-1123-b59bf888eac3
-data[US_row:US_row, :]
+typeof(data[US_row:US_row, :])
 
 # ╔═╡ 67eebb7e-fc36-11ea-03ef-bd6966487bb5
 md"Now we can extract the data into a standard Julia `Vector`:"
 
 # ╔═╡ 7b5db0f4-fc36-11ea-09a5-49def64f4c79
 US_data = Vector(data[US_row, 5:end])
+
+# ╔═╡ a26b8742-6a16-445a-ae77-25a4189c0f14
+
 
 # ╔═╡ f099424c-0e22-42fb-894c-d8c2a65715fb
 scatter(US_data, m=:o, alpha=0.5, ms=3, xlabel="day", ylabel="cumulative cases", leg=false)
@@ -248,7 +251,7 @@ Now we need to **parse** the date strings, i.e. convert from a string representa
 date_strings[1]
 
 # ╔═╡ 25c79620-14f4-45a7-b120-05ec72cb77e9
-date_format = Dates.DateFormat("m/d/Y")
+date_format = Dates.DateFormat("m/d/y")
 
 # ╔═╡ 31dc4e46-4839-4f01-b383-1a1189aeb0e6
 parse(Date, date_strings[1], date_format)
@@ -265,7 +268,7 @@ dates[day]
 # ╔═╡ 36c37b4d-eb23-4deb-a593-e511eccd9204
 begin
 	plot(dates, US_data, xrotation=45, leg=:topleft, 
-	    label="US data", m=:o, ms=3, alpha=0.5)
+	     label="US data", m=:o, ms=3, alpha=0.5)
 	
 	xlabel!("date")
 	ylabel!("cumulative US cases")
@@ -429,22 +432,22 @@ province = data.province
 # ╔═╡ 8709f208-fc4a-11ea-0203-e13eae5f0d93
 md"If the `province` is missing we should use the country name instead:"
 
+# ╔═╡ 3783b2b0-6729-11eb-0045-49c1605aa834
+plotly()
+
 # ╔═╡ a29c8ad0-fc4a-11ea-14c7-71435769b73e
 begin
 	indices = ismissing.(province)
 	province[indices] .= all_countries[indices]
 end
 
-# ╔═╡ 4e4cca22-fc4c-11ea-12ae-2b51545799ec
-begin 
-	
-	scatter(data.longitude, data.latitude, leg=false, alpha=0.5, ms=2)
+# ╔═╡ d5ffb570-6728-11eb-1c8e-7d41de360e96
+scatter(data.longitude, data.latitude, leg=false, alpha=0.5, ms=2)
 
-	for i in 1:length(province)	
-		annotate!(data.longitude[i], data.latitude[i], text(province[i], :center, 5, color=RGBA{Float64}(0.0,0.0,0.0,0.3)))
-	end
-	
-	plot!(axis=false)
+# ╔═╡ dc4eda00-6728-11eb-1560-dd216cace1b1
+begin
+	ann = [(data.longitude[i], data.latitude[i], text(prov, :center, 5, color=RGBA{Float64}(0.0,0.0,0.0,0.3))) for (i, prov) in enumerate(province)]
+	annotate!(ann)
 end
 
 # ╔═╡ 16981da0-fc4d-11ea-37a2-535aa014a298
@@ -491,9 +494,9 @@ md"Now we would like to combine the geographical and temporal (time) aspects. On
 daily = max.(1, diff(Array(data[:, 5:end]), dims=2));
 
 # ╔═╡ 0f329ece-fc74-11ea-1e02-bdbddf551ef3
-@bind day2 Slider(1:size(daily, 2), show_value=true)
+# @bind day2 Slider(1:size(daily, 2), show_value=true)
 
-# @bind day Clock(0.5)
+@bind day2 Clock(0.5)
 
 # ╔═╡ b406eec8-fc77-11ea-1a98-d36d6d3e2393
 log10(maximum(daily[:, day]))
@@ -548,7 +551,7 @@ Unfortunately, published visualisations often hide some of  this information. Th
 # ╟─34440afc-fc2e-11ea-0484-5b47af235bad
 # ╠═79ba0433-2a31-475a-87c9-14103ebbff16
 # ╠═5c1ec9ae-fc2e-11ea-397d-937c7ab1edb2
-# ╟─a39589ee-20e3-4f22-bf81-167fd815f6f9
+# ╠═a39589ee-20e3-4f22-bf81-167fd815f6f9
 # ╟─9484ea9e-fc2e-11ea-137c-6da8212da5bd
 # ╟─bcc95a8a-fc2e-11ea-2ccd-3bece42a08e6
 # ╠═ada3ceb4-fc2e-11ea-2cbf-399430fa18b5
@@ -566,11 +569,12 @@ Unfortunately, published visualisations often hide some of  this information. Th
 # ╟─8990f13a-fc35-11ea-338f-0955eeb23c3c
 # ╟─a772eadc-fc35-11ea-3d38-4b121f88f1d7
 # ╠═16a79308-fc36-11ea-16e5-e1087d7ebbda
+# ╠═95fd3450-6653-11eb-1efd-6fb7472b8089
 # ╠═a41db8ea-f0e0-461f-a298-bdcea42a67f3
 # ╠═f75e1992-fcfb-11ea-1123-b59bf888eac3
 # ╟─67eebb7e-fc36-11ea-03ef-bd6966487bb5
 # ╠═7b5db0f4-fc36-11ea-09a5-49def64f4c79
-# ╠═a26b8742-6a16-445a-ae77-25a4189c0f14
+# ╟─a26b8742-6a16-445a-ae77-25a4189c0f14
 # ╠═f099424c-0e22-42fb-894c-d8c2a65715fb
 # ╟─7e7d14a2-fc37-11ea-3f1a-870ca98c4b75
 # ╟─75d2dc66-fc47-11ea-0e35-05f9cf38e901
@@ -616,13 +620,15 @@ Unfortunately, published visualisations often hide some of  this information. Th
 # ╟─57a9bb06-fc4a-11ea-2665-7f97026981dc
 # ╠═80138b30-fc4a-11ea-0e15-b54cf6b402df
 # ╟─8709f208-fc4a-11ea-0203-e13eae5f0d93
+# ╠═3783b2b0-6729-11eb-0045-49c1605aa834
 # ╠═a29c8ad0-fc4a-11ea-14c7-71435769b73e
-# ╠═4e4cca22-fc4c-11ea-12ae-2b51545799ec
+# ╠═d5ffb570-6728-11eb-1c8e-7d41de360e96
+# ╠═dc4eda00-6728-11eb-1560-dd216cace1b1
 # ╠═16981da0-fc4d-11ea-37a2-535aa014a298
 # ╟─a9c39dbe-fc4d-11ea-2e86-4992896e2abb
 # ╟─b93b88b0-fc4d-11ea-0c45-8f64983f8b5c
 # ╠═7ec28cd0-fc87-11ea-2de5-1959ea5dc37c
-# ╟─ada44a56-fc56-11ea-2ab7-fb649be7e066
+# ╠═ada44a56-fc56-11ea-2ab7-fb649be7e066
 # ╠═d911edb6-fc87-11ea-2258-d34d61c02245
 # ╠═b3e1ebf8-fc56-11ea-05b8-ed0b9e50503d
 # ╟─f8e754ee-fc73-11ea-0c7f-cdc760ab3e94

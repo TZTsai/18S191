@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.14
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -54,6 +54,9 @@ md"""**Tip:** infix operations like `+` are also functions.
 # ╔═╡ ef1f280e-fcd6-11ea-17c2-873d329119e7
 md"Count the multiplies and adds in each case."
 
+# ╔═╡ c453ccd0-64d5-11eb-09e1-65236d0adff7
+@edit a * 2
+
 # ╔═╡ 56398582-f1da-11ea-2ae7-6f55de7e9e82
 md"""
 **Tip:** If you're using the default Julia REPL, you can type `@edit a * 2` and go to this line of code within your editor.
@@ -69,7 +72,6 @@ You will see that it's very common for functions to have many methods, in fact t
 
 # ╔═╡ 3e455938-f1da-11ea-1dc3-778cef1b6189
 methods(*)
-
 
 # ╔═╡ 73bef402-f1df-11ea-36d5-13e346ee1d59
 md"""
@@ -149,6 +151,9 @@ md"""
 Notice that here not only the variable names, but the field names are also gone!
 """
 
+# ╔═╡ 1c93b300-64d7-11eb-0601-190fe7ace9c1
+Meta.@lower [i for i in 1:5]
+
 # ╔═╡ aa907166-f1de-11ea-00cc-a935c275eebd
 md"""
 **Notes on the `@code_native` output**
@@ -223,6 +228,7 @@ end
 # ╠═2a66f8cc-f1da-11ea-3e26-cbe02936adb5
 # ╠═1b72c758-f1da-11ea-2a63-e164d7e0c63b
 # ╟─ef1f280e-fcd6-11ea-17c2-873d329119e7
+# ╠═c453ccd0-64d5-11eb-09e1-65236d0adff7
 # ╟─56398582-f1da-11ea-2ae7-6f55de7e9e82
 # ╠═3e455938-f1da-11ea-1dc3-778cef1b6189
 # ╟─73bef402-f1df-11ea-36d5-13e346ee1d59
@@ -240,5 +246,6 @@ end
 # ╟─5e5f78c6-f1de-11ea-0156-25f96ef2b812
 # ╠═dd322a8c-f1dd-11ea-245e-e54922c0f355
 # ╠═293c8888-fcd7-11ea-34f6-4b994aa6baf4
+# ╠═1c93b300-64d7-11eb-0601-190fe7ace9c1
 # ╟─aa907166-f1de-11ea-00cc-a935c275eebd
 # ╟─4c131066-f1dd-11ea-3e4f-4122c5feb20a

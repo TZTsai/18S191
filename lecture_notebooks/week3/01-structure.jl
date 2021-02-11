@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.12
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -95,8 +95,14 @@ Base.size(x::OneHot) = (x.n, )
 # ╔═╡ 82c7046c-f5d3-11ea-04e2-ef7c0f4db5da
 Base.getindex(x::OneHot, i::Int) = Int(x.k == i)
 
+# ╔═╡ 7e6fc912-5ffa-11eb-2910-8f9cd1ac5adc
+@bind n′ Slider(1:20, show_value=true)
+
+# ╔═╡ 397b59a0-5ffa-11eb-17f0-67e9ac276f56
+@bind k′ Slider(1:n′, show_value=true)
+
 # ╔═╡ 7a98f708-f5d3-11ea-2301-cde71ca469ff
-x = OneHot(5, 3)
+x = OneHot(n′, k′)
 
 # ╔═╡ 60214c1a-f5fe-11ea-2d08-c59715bcedd0
 x[1:2]
@@ -259,7 +265,7 @@ md"Comprehension:"
 md"Slider"
 
 # ╔═╡ 6c51eddc-f5db-11ea-1235-332cdbb072fa
-[i * j for i in 1:3, j in 1:4]
+[i * j * k for i in 1:3, j in 1:4, k in 1:2]
 
 # ╔═╡ 86fb49ee-f5db-11ea-3bfa-c95c3b8775a3
 md"Explain '"
@@ -385,22 +391,13 @@ cs[outer(rand(1:10, 3), rand(1:10, 5))]
 Gray.((100 .- outer(1:10, 1:10)) ./ 100)
 
 # ╔═╡ e23debc8-f5df-11ea-2c1e-b58a64f9acd3
-ColorSchemes.rainbow[floor.(Int, (1:10, 1:10) ./ 10)]
-
-# ╔═╡ 70b8918e-f5e0-11ea-3c86-6fa72df5a28e
-ColorSchemes.rainbow.colors[floor.(Int, outer(1:10, 1:10) ./ 10)]
-
-# ╔═╡ a0934122-f5e0-11ea-1f3b-ab0021ac6906
-ColorSchemes.rainbow.colors[ceil.(Int, outer(1:10, 1:10) ./ 10)]
+ColorSchemes.rainbow[outer(1:10, 1:10) .÷ 8 .+ 1]
 
 # ╔═╡ b9381b8a-f5e0-11ea-1f84-e39325203038
 
 
 # ╔═╡ 4cf96558-f5e0-11ea-19be-db4c59a41120
 ColorSchemes.rainbow
-
-# ╔═╡ 11de523c-f5e0-11ea-2f3d-c981c1b6a1fe
-outer(1:10, 1:10) ./ 100
 
 # ╔═╡ fb0c6c7e-f5df-11ea-38d0-2d98c9dc232f
 
@@ -438,7 +435,7 @@ pr, pg, pb = eachslice(picture, dims=1)
 [RGB.(pr, 0, 0) RGB.(0, pg, 0) RGB.(0, 0, pb)]
 
 # ╔═╡ fee66076-f5f9-11ea-2316-abc57b62a57c
-RGB.(image
+RGB.(pr, pg, pb)
 
 # ╔═╡ 6532b388-f5f9-11ea-2ae2-f9b12e441bb3
 pr
@@ -527,7 +524,7 @@ end
 
 # ╔═╡ Cell order:
 # ╟─b0ba5b8c-f5d1-11ea-1304-3f0e47f935fe
-# ╟─ffa95430-f5d1-11ea-3cb7-5bb8d8f13701
+# ╠═ffa95430-f5d1-11ea-3cb7-5bb8d8f13701
 # ╟─261c4df2-f5d2-11ea-2c72-7d4b09c46098
 # ╠═ae24c8b2-f60b-11ea-2c7a-03857d1217b2
 # ╠═b5177f70-f60b-11ea-14a9-f5a574cc5185
@@ -537,15 +534,17 @@ end
 # ╠═3a1ed5b8-f5fd-11ea-2ecd-b9d08349651f
 # ╠═676f6e3a-f5fd-11ea-3552-e7e7c6382276
 # ╠═77ae1146-f5d2-11ea-1226-27d15c90a8df
-# ╠═3592648a-f5fd-11ea-2ed0-a1d4a4c14d07
+# ╟─3592648a-f5fd-11ea-2ed0-a1d4a4c14d07
 # ╠═7ffa02f6-f5d2-11ea-1b41-15c21f92e9ee
 # ╟─21a15906-f5d3-11ea-3a71-f53eabc31acc
 # ╟─3c5f0ba8-f5d3-11ea-22d3-4f7c513144bc
-# ╠═4d2db24e-f5d4-11ea-10d4-b126f643abee
+# ╟─4d2db24e-f5d4-11ea-10d4-b126f643abee
 # ╠═4624cd26-f5d3-11ea-1cf8-7d6555eae5fa
 # ╠═397ac764-f5fe-11ea-20cc-8d7cab19d410
 # ╠═82c7046c-f5d3-11ea-04e2-ef7c0f4db5da
 # ╠═60214c1a-f5fe-11ea-2d08-c59715bcedd0
+# ╠═7e6fc912-5ffa-11eb-2910-8f9cd1ac5adc
+# ╠═397b59a0-5ffa-11eb-17f0-67e9ac276f56
 # ╠═7a98f708-f5d3-11ea-2301-cde71ca469ff
 # ╠═cf77d83c-f5fd-11ea-136e-8951de64e05e
 # ╠═5813e1b2-f5ff-11ea-2849-a1def74fc065
@@ -593,7 +592,7 @@ end
 # ╠═389ae62e-f5db-11ea-1557-c3adbbee0e5c
 # ╟─0c2b6408-f5d9-11ea-2b7f-7fece2eecc1f
 # ╟─542a9556-f5db-11ea-0375-99f52416f6e4
-# ╠═165788b2-f601-11ea-3e69-cdbbb6558e54
+# ╟─165788b2-f601-11ea-3e69-cdbbb6558e54
 # ╠═22941bb8-f601-11ea-1d6e-0d955297bc2e
 # ╠═2f75df7e-f601-11ea-2fc2-aff4f335af33
 # ╠═53e6b612-f601-11ea-05a9-5395e69b3c41
@@ -626,9 +625,9 @@ end
 # ╠═5d767290-f5dd-11ea-2189-81198fd216ce
 # ╠═6aae805e-f5dd-11ea-108c-733daae313dc
 # ╠═9a023cf8-f5dd-11ea-3016-f95d433e6df0
-# ╠═b4c82246-f5dd-11ea-068f-2f63a5a382e2
-# ╠═d1f87b22-f5dd-11ea-3bc3-471d5b3a5202
-# ╠═d790281e-f5dd-11ea-0d1c-f57da5018a6b
+# ╟─b4c82246-f5dd-11ea-068f-2f63a5a382e2
+# ╟─d1f87b22-f5dd-11ea-3bc3-471d5b3a5202
+# ╟─d790281e-f5dd-11ea-0d1c-f57da5018a6b
 # ╠═d1578d4c-f601-11ea-2983-27dc131d39b8
 # ╠═d9556f32-f601-11ea-3dd8-1bc876b7b719
 # ╠═e36e4ec2-f5dd-11ea-34ea-1bcf5fd7c16d
@@ -641,12 +640,9 @@ end
 # ╠═4c80c786-f5df-11ea-31ec-318439349648
 # ╠═8d2bae22-f5df-11ea-10d3-859f4c3aa6c7
 # ╠═e23debc8-f5df-11ea-2c1e-b58a64f9acd3
-# ╠═70b8918e-f5e0-11ea-3c86-6fa72df5a28e
-# ╠═a0934122-f5e0-11ea-1f3b-ab0021ac6906
-# ╠═b9381b8a-f5e0-11ea-1f84-e39325203038
+# ╟─b9381b8a-f5e0-11ea-1f84-e39325203038
 # ╠═4cf96558-f5e0-11ea-19be-db4c59a41120
-# ╠═11de523c-f5e0-11ea-2f3d-c981c1b6a1fe
-# ╠═fb0c6c7e-f5df-11ea-38d0-2d98c9dc232f
+# ╟─fb0c6c7e-f5df-11ea-38d0-2d98c9dc232f
 # ╠═ebd72fb8-f5e0-11ea-0630-573337dff753
 # ╠═f00d1eaa-f5e0-11ea-21df-d9cf6f7af9b9
 # ╠═b6478e1a-f5f6-11ea-3b92-6d4f067285f4
@@ -662,7 +658,7 @@ end
 # ╠═3c28c4c2-f5fa-11ea-1947-9dfe91ea1535
 # ╠═f56f40e4-f5fa-11ea-3a99-156565445c2e
 # ╠═7ba6e6a6-f5fa-11ea-2bcd-616d5a3c898b
-# ╠═8a22387e-f5fb-11ea-249b-435af5c0a6b6
+# ╟─8a22387e-f5fb-11ea-249b-435af5c0a6b6
 # ╠═4f8684ea-f5fb-11ea-07be-11d8046f35df
 # ╠═8df84fcc-f5d5-11ea-312f-bf2a3b3ce2ce
 # ╠═91980bcc-f5d5-11ea-211f-e9a08ff0fb19

@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.14
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -400,7 +400,7 @@ Note that we have not said what we mean by **converges** here. Making that preci
 # ╠═f6d07dee-fdb9-11ea-004a-f1283db60877
 # ╟─c3dc6d9c-fdb6-11ea-3b74-e1ecfa6c6f49
 # ╟─f07d314c-fdb6-11ea-0e6e-173e625133cf
-# ╟─8fbf80ac-fe0c-11ea-1848-9fae8515757f
+# ╠═8fbf80ac-fe0c-11ea-1848-9fae8515757f
 # ╟─89cbbbe8-fe0c-11ea-1cf8-e33f6bd7cee2
 # ╟─e906450c-fdb6-11ea-13c3-d1348fdae587
 # ╟─cd32d0c6-fdb7-11ea-3d3f-d9981951293f

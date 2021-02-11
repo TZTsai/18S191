@@ -77,7 +77,7 @@ md"_Let's create a package environment:_"
 #img = load(download("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Piet_Mondriaan%2C_1930_-_Mondrian_Composition_II_in_Red%2C_Blue%2C_and_Yellow.jpg/300px-Piet_Mondriaan%2C_1930_-_Mondrian_Composition_II_in_Red%2C_Blue%2C_and_Yellow.jpg"))
 #img = load(download("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Hilma_af_Klint_-_Group_IX_SUW%2C_The_Swan_No._1_%2813947%29.jpg/477px-Hilma_af_Klint_-_Group_IX_SUW%2C_The_Swan_No._1_%2813947%29.jpg"))
 begin 
-	img_url = "https://assets.pokemon.com/assets//cms2/img/video-games/_tiles/pokemon-go/01192021/pokemon-go-169.jpg"
+	img_url = "https://cdn.arstechnica.net/wp-content/uploads/2020/07/pokemon-go-masks-760x380.jpg"
 	img = load(download(img_url))
 end
 
@@ -714,7 +714,7 @@ end
 
 # ╔═╡ 51e28596-f3c5-11ea-2237-2b72bbfaa001
 if shrink_bottomup
-	bottomup_carved = shrink_n(img, 3, seam_from_precomputed_least_energy)
+	bottomup_carved = shrink_n(img, 200, seam_from_precomputed_least_energy)
 	md"Shrink by: $(@bind bottomup_n Slider(1:200, show_value=true))"
 end
 

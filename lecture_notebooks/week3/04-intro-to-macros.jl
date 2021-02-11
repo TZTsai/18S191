@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.14
+# v0.12.18
 
 using Markdown
 using InteractiveUtils
@@ -42,6 +42,9 @@ You can look at the transformed expression by using `@macroexpand`. Since this n
 
 # ╔═╡ 4b2cbfc4-f1ee-11ea-17d6-a72fd22e6d89
 @macroexpand @elapsed peakflops()
+
+# ╔═╡ a141e760-6262-11eb-3c7d-abb307304943
+@macroexpand @macroexpand @elapsed peakflops()
 
 # ╔═╡ c4e4e402-f1fa-11ea-3e5e-4344dcc7e17b
 md"Let's remove the line number information:"
@@ -105,6 +108,11 @@ md"If we evaluate this expression, it gives an error, since there is no variable
 
 # ╔═╡ 906e3234-f637-11ea-1f77-679dc897ec69
 y + 1
+
+# ╔═╡ 5e2189c0-6264-11eb-3947-dfdd0f96d8e5
+expr_ = quote
+	f(x) = 2x; f(9)
+end
 
 # ╔═╡ 940f888c-f637-11ea-20a0-1ddda8fb7908
 md"Since expressions are Julia objects, we can examine them using Julia's usual mechanisms. For example, the `dump` function allows us to inspect the fields inside an object:"
@@ -182,6 +190,11 @@ function with_terminal(f)
 	""")
 end
 
+# ╔═╡ 713962d0-6264-11eb-1340-d5dd9abfcf7a
+with_terminal() do
+	dump(expr_)
+end
+
 # ╔═╡ 77437eaa-f639-11ea-0c4d-3756cbd589da
 with_terminal() do
 	dump(expr3)
@@ -195,6 +208,7 @@ end
 # ╟─67b3fb78-f1ee-11ea-2d0a-a92e81580917
 # ╟─5677f2d6-f1ee-11ea-3f9b-b59c8a8d07ff
 # ╠═4b2cbfc4-f1ee-11ea-17d6-a72fd22e6d89
+# ╠═a141e760-6262-11eb-3c7d-abb307304943
 # ╟─c4e4e402-f1fa-11ea-3e5e-4344dcc7e17b
 # ╠═9639e822-f1ee-11ea-19b6-5f377bb4b809
 # ╟─ea65d68c-f1fa-11ea-1cde-ebf4b7958b8a
@@ -213,12 +227,14 @@ end
 # ╠═cbce40ee-f1ee-11ea-2e05-1d523acbf8b9
 # ╟─7f1cad88-f637-11ea-1cf2-4d5b9a4fb50f
 # ╠═906e3234-f637-11ea-1f77-679dc897ec69
+# ╠═5e2189c0-6264-11eb-3947-dfdd0f96d8e5
+# ╠═713962d0-6264-11eb-1340-d5dd9abfcf7a
 # ╟─940f888c-f637-11ea-20a0-1ddda8fb7908
 # ╠═77437eaa-f639-11ea-0c4d-3756cbd589da
 # ╠═8dab58d4-f639-11ea-1b0b-536927639c6c
 # ╠═e46e6c96-f1ee-11ea-3e7f-4f613282ccb1
 # ╠═e631bede-f1ee-11ea-0fab-7516ab535cf5
-# ╠═95cf0d76-f639-11ea-34dc-f32852ac32b8
+# ╟─95cf0d76-f639-11ea-34dc-f32852ac32b8
 # ╠═9a587ba4-f639-11ea-2bef-37fed4d45a7f
 # ╠═9cd4334e-f639-11ea-26c6-e9782451ef02
 # ╠═a037391e-f639-11ea-2723-455ccff4b024
